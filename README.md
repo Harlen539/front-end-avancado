@@ -211,11 +211,11 @@ O projeto será publicado utilizando a **Vercel**.
 
 ### Site
 
-🔗 **Deploy:** `ADICIONAR_LINK_DA_VERCEL`
+🔗 **Deploy:** 'https://leque-de-vagas.vercel.app/'
 
 ### Repositório
 
-🔗 **GitHub:** https://github.com/Harlen539/front-end-avancado
+🔗 **GitHub:** 'https://github.com/Harlen539/front-end-avancado'
 
 ---
 
