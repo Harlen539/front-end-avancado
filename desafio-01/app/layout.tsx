@@ -1,30 +1,31 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import Cabecalho from "@/components/Cabecalho";
 import Rodape from "@/components/Rodape";
 import "./globals.css";
 
-const inter = Inter({
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Leque de Vagas",
-    template: "%s | Leque de Vagas",
+    default: "Primeiro Next",
+    template: "%s | Primeiro Next",
   },
-  description:
-    "Vagas de tecnologia para quem está em transição de carreira e busca novas oportunidades.",
+  description: "Meu primeiro projeto criado com Next.js.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR">
-      <body className={inter.variable}>
+    <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body>
         <Cabecalho />
         {children}
         <Rodape />

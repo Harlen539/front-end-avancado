@@ -1,50 +1,18 @@
 import Link from "next/link";
-import Marca from "./Marca";
-
-const links = [
-  { href: "/", label: "Início" },
-  { href: "/#vagas", label: "Vagas" },
-  { href: "/#empresas", label: "Para empresas" },
-  { href: "/#conteudos", label: "Dicas" },
-  { href: "/sobre", label: "Sobre" },
-];
 
 export default function Cabecalho() {
   return (
     <header className="cabecalho">
-      <div className="container cabecalho__conteudo">
-        <Marca />
+      <Link className="marca" href="/" aria-label="Ir para a página inicial">
+        <span className="marcaIcone" aria-hidden="true">N</span>
+        <h1>Primeiro Next</h1>
+      </Link>
 
-        <nav className="navegacao-desktop" aria-label="Navegação principal">
-          {links.map((link) => (
-            <Link key={link.href} href={link.href}>
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        <Link className="botao botao--cabecalho" href="/contato">
-          Entrar / Cadastrar
-        </Link>
-
-        <details className="menu-mobile">
-          <summary aria-label="Abrir menu de navegação">
-            <span />
-            <span />
-            <span />
-          </summary>
-          <nav aria-label="Navegação para celular">
-            {links.map((link) => (
-              <Link key={link.href} href={link.href}>
-                {link.label}
-              </Link>
-            ))}
-            <Link className="menu-mobile__acao" href="/contato">
-              Entrar / Cadastrar
-            </Link>
-          </nav>
-        </details>
-      </div>
+      <nav aria-label="Navegação principal">
+        <Link href="/">Início</Link>
+        <Link href="/sobre">Sobre</Link>
+        <Link href="/contato">Contato</Link>
+      </nav>
     </header>
   );
 }
