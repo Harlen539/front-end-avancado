@@ -1,23 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Contato",
+  description: "Entre em contato com o projeto Leque de Vagas.",
+};
 
 export default function Contato() {
   return (
-    <main className="conteudo paginaInterna">
+    <main className="conteudo paginaInterna textoLongo">
       <span className="etiqueta">Contato</span>
-      <h2>Vamos conversar?</h2>
+      <h1>Vamos conversar?</h1>
       <p>
-        Esta é uma página extra do projeto. Em breve, ela poderá receber um
-        formulário e links para minhas redes profissionais.
+        Esta rota extra mantém o exercício de navegação da primeira aula e está
+        pronta para receber um formulário em uma etapa futura do projeto.
       </p>
-      <div className="cartaoContato">
-        <span aria-hidden="true">✦</span>
-        <div>
-          <h3>Projeto em construção</h3>
-          <p>Cada nova aula vai trazer uma melhoria para este espaço.</p>
-        </div>
-      </div>
       <Link className="linkSeta" href="/">
-        ← Voltar para o início
+        <span aria-hidden="true">←</span> Voltar ao início
       </Link>
     </main>
   );

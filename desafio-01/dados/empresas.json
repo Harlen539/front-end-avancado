@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "aurora-tech",
+    "nome": "Aurora Tech",
+    "sobre": "A Aurora Tech cria produtos digitais para pequenas empresas organizarem vendas, atendimento e relacionamento com clientes. O time trabalha de forma remota, com rituais leves, documentação clara e colaboração entre produto, design e engenharia.\n\nA empresa mantém um programa de formação para quem está entrando em tecnologia, com mentoria semanal, tarefas acompanhadas e espaço seguro para dúvidas. O aprendizado faz parte do trabalho e não é tratado como atividade paralela.",
+    "site": "https://example.com/aurora-tech"
+  },
+  {
+    "slug": "ponte-digital",
+    "nome": "Ponte Digital",
+    "sobre": "A Ponte Digital desenvolve plataformas para conectar organizações sociais a pessoas voluntárias e doadoras. Seus produtos precisam funcionar bem em conexões lentas e em aparelhos simples, por isso acessibilidade e desempenho orientam as decisões técnicas.\n\nO time é multidisciplinar e trabalha em ciclos curtos, sempre validando as entregas com as organizações parceiras. Pessoas em início de carreira participam de revisões em dupla e recebem um plano de desenvolvimento desde a primeira semana.",
+    "site": "https://example.com/ponte-digital"
+  },
+  {
+    "slug": "nuvem-clara",
+    "nome": "Nuvem Clara",
+    "sobre": "A Nuvem Clara oferece ferramentas de gestão e análise para lojas independentes. A plataforma reúne pedidos, estoque e indicadores em uma experiência simples, ajudando os negócios a tomar decisões melhores sem depender de planilhas espalhadas.\n\nA equipe valoriza entregas pequenas, testes automatizados e comunicação direta. Há trilhas de entrada para desenvolvimento, qualidade e dados, com acompanhamento de profissionais mais experientes e avaliações baseadas em evolução real.",
+    "site": "https://example.com/nuvem-clara"
+  },
+  {
+    "slug": "raiz-labs",
+    "nome": "Raiz Labs",
+    "sobre": "A Raiz Labs é um estúdio de produtos digitais dedicado à educação. A empresa constrói ambientes de aprendizagem, painéis para docentes e recursos que ajudam estudantes a acompanhar o próprio progresso de maneira acolhedora.\n\nDesign e engenharia trabalham juntos desde a descoberta do problema. O time possui horários reservados para estudo, encontros de troca de conhecimento e projetos com escopo adequado para que profissionais iniciantes conquistem autonomia gradualmente.",
+    "site": "https://example.com/raiz-labs"
+  },
+  {
+    "slug": "orbita-fintech",
+    "nome": "Órbita Fintech",
+    "sobre": "A Órbita Fintech cria soluções de controle financeiro para trabalhadores autônomos. O produto traduz movimentações, cobranças e planejamento em informações fáceis de entender, com atenção especial à segurança e à privacidade.\n\nO ambiente combina responsabilidade técnica com colaboração. Novas pessoas passam por uma integração estruturada, recebem contexto antes das tarefas e contam com revisão de código frequente para aprender os padrões do produto sem trabalhar isoladamente.",
+    "site": "https://example.com/orbita-fintech"
+  }
+]

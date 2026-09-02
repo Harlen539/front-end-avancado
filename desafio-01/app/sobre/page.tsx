@@ -1,25 +1,29 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Sobre",
+  description: "Conheça o propósito do Leque de Vagas.",
+};
 
 export default function Sobre() {
   return (
-    <main className="conteudo paginaInterna">
-      <span className="etiqueta">Sobre mim</span>
-      <h2>Aprender, construir e evoluir.</h2>
+    <main className="conteudo paginaInterna textoLongo">
+      <span className="etiqueta">Sobre o projeto</span>
+      <h1>O começo da carreira não deveria parecer um labirinto.</h1>
       <p>
-        Olá! Sou Harlen, estudante de desenvolvimento front-end. Gosto de
-        transformar ideias em interfaces simples, úteis e agradáveis de usar.
+        O Leque de Vagas ajuda pessoas em transição de carreira a encontrar
+        oportunidades de tecnologia compatíveis com o momento em que estão.
+        A proposta é deixar claros a área, a senioridade, o modelo de trabalho
+        e, principalmente, se a empresa aceita quem ainda está começando.
       </p>
       <p>
-        Neste semestre, espero fortalecer meus conhecimentos em React e
-        Next.js, aprender boas práticas de desenvolvimento e criar projetos
-        que possam fazer parte do meu portfólio.
+        Este projeto foi desenvolvido durante as aulas de Introdução ao Next.js.
+        Até a aula 4 ele reúne componentes de servidor e cliente, rotas dinâmicas,
+        estado, dados externos, cache, revalidação, streaming e metadata.
       </p>
-      <p>
-        Quero terminar essa jornada com mais confiança para trabalhar em
-        equipe, resolver problemas e publicar aplicações completas.
-      </p>
-      <Link className="linkSeta" href="/">
-        ← Voltar para o início
+      <Link className="linkSeta" href="/vagas">
+        Conhecer as vagas <span aria-hidden="true">→</span>
       </Link>
     </main>
   );

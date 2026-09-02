@@ -1,8 +1,17 @@
+import Link from "next/link";
+
 export default function Rodape() {
   return (
     <footer className="rodape">
-      <p>Feito com Next.js e vontade de aprender.</p>
-      <p>{new Date().getFullYear()} · Primeiro Next</p>
+      <div>
+        <strong>Leque de Vagas</strong>
+        <p>Vagas de tecnologia para quem está construindo um novo caminho.</p>
+      </div>
+      <nav aria-label="Links institucionais">
+        <Link href="/termos">Termos</Link>
+        <Link href="/privacidade">Privacidade</Link>
+      </nav>
+      <p>{new Date().getFullYear()} · Projeto acadêmico</p>
     </footer>
   );
 }
