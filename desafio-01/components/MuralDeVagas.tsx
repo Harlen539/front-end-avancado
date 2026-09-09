@@ -44,7 +44,7 @@ export default function MuralDeVagas({ vagas }: MuralDeVagasProps) {
       {visiveis.length > 0 ? (
         <div className="gradeVagas">
           {visiveis.map((vaga) => (
-            <CardDeVaga key={vaga.id} vaga={vaga} />
+            <CardDeVaga key={vaga.id} vaga={vaga} arquivavel />
           ))}
         </div>
       ) : (

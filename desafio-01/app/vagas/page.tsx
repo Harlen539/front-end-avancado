@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import Esqueleto from "@/components/Esqueleto";
 import ListagemDeVagas from "@/components/ListagemDeVagas";
@@ -16,6 +17,7 @@ export default function PaginaDeVagas() {
       <div className="topoPagina">
         <span className="etiqueta">Oportunidades abertas</span>
         <h1>Encontre uma vaga que combine com o seu momento.</h1>
+        <div className="acoes"><Link className="botao botaoPrimario" href="/vagas/nova">Publicar vaga</Link></div>
         <Suspense fallback={<Esqueleto />}>
           <NumerosDoCatalogo />
         </Suspense>

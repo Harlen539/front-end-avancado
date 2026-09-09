@@ -44,9 +44,36 @@ a {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
+
+/* Formulários das Server Actions */
+.paginaFormulario { max-width: 820px; }
+.paginaFormulario > .linkVoltar { display: flex; width: fit-content; margin-bottom: 28px; }
+.formulario { display: grid; gap: 24px; }
+.campoFormulario { display: grid; gap: 8px; }
+.campoFormulario label, .habilidadesFormulario legend { font-weight: 700; }
+.formulario input:not([type="checkbox"]):not([type="hidden"]),
+.formulario select, .formulario textarea {
+  width: 100%; padding: 14px 16px; color: var(--texto);
+  background: var(--superficie); border: 1px solid var(--borda-forte);
+  border-radius: 10px;
+}
+.formulario textarea { resize: vertical; min-height: 150px; }
+.formulario [aria-invalid="true"] { border-color: var(--erro) !important; }
+.formulario .opcaoCheckbox { display: flex; align-items: center; gap: 10px; text-transform: none; }
+.formulario .opcaoCheckbox input { width: 18px; height: 18px; margin: 0; accent-color: var(--texto); }
+.habilidadesFormulario { border: 1px solid var(--borda); border-radius: 12px; padding: 20px; min-width: 0; }
+.habilidadesFormulario legend { padding-inline: 8px; }
+.opcoesHabilidades { display: flex; flex-wrap: wrap; gap: 16px 24px; margin-bottom: 24px; }
+.formulario > .botao { justify-self: start; }
+.mensagemSucesso { padding: 16px; border-radius: 10px; background: var(--acento); }
+.formularioArquivar { margin-top: 20px; }
+.formularioArquivar .botao { padding: 10px 16px; }
+button:disabled { opacity: .65; cursor: wait; }
 
 button,
 a {

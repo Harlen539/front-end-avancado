@@ -11,12 +11,14 @@ export default function Privacidade() {
       <span className="etiqueta">Institucional</span>
       <h1>Privacidade</h1>
       <p>
-        Nesta versão, o formulário funciona apenas no navegador. Nenhum nome,
-        e-mail ou habilidade é enviado para uma API ou salvo em banco de dados.
+        Ao enviar uma candidatura, nome, e-mail e habilidades são enviados ao
+        servidor para registrar seu interesse na vaga. Nesta versão acadêmica,
+        esses dados ficam temporariamente na memória do servidor e são apagados
+        quando ele reinicia. Não há armazenamento em banco de dados.
       </p>
       <p>
-        Uma etapa futura deverá informar de forma transparente quais dados serão
-        coletados, por que serão usados e por quanto tempo ficarão armazenados.
+        Use dados fictícios para experimentar o projeto. As candidaturas não são
+        encaminhadas a empresas reais.
       </p>
     </main>
   );

@@ -77,7 +77,7 @@ export default async function PaginaDaVaga({ params }: PageProps<"/vagas/[id]">)
         </section>
       </article>
 
-      <FormularioDeCandidatura tituloDaVaga={vaga.titulo} />
+      <FormularioDeCandidatura tituloDaVaga={vaga.titulo} vagaId={vaga.id} />
     </main>
   );
 }

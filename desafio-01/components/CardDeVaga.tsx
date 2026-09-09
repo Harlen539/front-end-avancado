@@ -1,11 +1,13 @@
 import Link from "next/link";
+import FormularioDeArquivamento from "@/components/FormularioDeArquivamento";
 import type { Vaga } from "@/lib/tipos";
 
 type CardDeVagaProps = {
   vaga: Vaga;
+  arquivavel?: boolean;
 };
 
-export default function CardDeVaga({ vaga }: CardDeVagaProps) {
+export default function CardDeVaga({ vaga, arquivavel = false }: CardDeVagaProps) {
   return (
     <article className="cardVaga">
       <div className="cardVagaTopo">
@@ -32,6 +34,7 @@ export default function CardDeVaga({ vaga }: CardDeVagaProps) {
       <Link className="linkDetalhe" href={`/vagas/${vaga.id}`}>
         Ver detalhes <span aria-hidden="true">→</span>
       </Link>
+      {arquivavel && <FormularioDeArquivamento id={vaga.id} />}
     </article>
   );
 }

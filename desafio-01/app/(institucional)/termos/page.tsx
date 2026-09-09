@@ -15,8 +15,9 @@ export default function Termos() {
         são fictícias e existem apenas para demonstrar os recursos da aplicação.
       </p>
       <p>
-        A candidatura ainda não é armazenada nem enviada. Ao recarregar a página,
-        os dados preenchidos são descartados.
+        As candidaturas são registradas temporariamente no servidor para fins de
+        demonstração. Os dados escritos nesta versão são apagados quando o
+        servidor reinicia e não representam inscrições em processos seletivos reais.
       </p>
     </main>
   );

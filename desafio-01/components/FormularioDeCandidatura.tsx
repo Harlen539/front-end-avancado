@@ -1,77 +1,24 @@
 "use client";
 
-import { useState, type FormEvent, type KeyboardEvent } from "react";
+import { useActionState } from "react";
+import { enviarCandidatura } from "@/app/vagas/[id]/acoes";
+import BotaoDeEnviar from "@/components/BotaoDeEnviar";
+import CampoDeFormulario from "@/components/CampoDeFormulario";
+import { HABILIDADES } from "@/lib/esquemas";
+import { ESTADO_INICIAL } from "@/lib/formularios";
 
-type FormularioDeCandidaturaProps = {
-  tituloDaVaga: string;
-};
-
-export default function FormularioDeCandidatura({
-  tituloDaVaga,
-}: FormularioDeCandidaturaProps) {
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [rascunho, setRascunho] = useState("");
-  const [habilidades, setHabilidades] = useState<string[]>([]);
-  const [enviada, setEnviada] = useState(false);
-
-  const emailParece = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const podeEnviar =
-    nome.trim().length >= 2 && emailParece && habilidades.length > 0;
-
-  function adicionarHabilidade() {
-    const nova = rascunho.trim();
-    const jaExiste = habilidades.some(
-      (habilidade) => habilidade.toLowerCase() === nova.toLowerCase(),
-    );
-
-    if (!nova || jaExiste) return;
-
-    setHabilidades([...habilidades, nova]);
-    setRascunho("");
-  }
-
-  function aoPressionarTecla(evento: KeyboardEvent<HTMLInputElement>) {
-    if (evento.key === "Enter") {
-      evento.preventDefault();
-      adicionarHabilidade();
-    }
-  }
-
-  function removerHabilidade(habilidadeRemovida: string) {
-    setHabilidades(
-      habilidades.filter((habilidade) => habilidade !== habilidadeRemovida),
-    );
-  }
-
-  function enviar(evento: FormEvent<HTMLFormElement>) {
-    evento.preventDefault();
-    if (podeEnviar) setEnviada(true);
-  }
-
-  if (enviada) {
+export default function FormularioDeCandidatura({ tituloDaVaga, vagaId }: { tituloDaVaga: string; vagaId: string }) {
+  const [estado, acao] = useActionState(enviarCandidatura, ESTADO_INICIAL, `/vagas/${vagaId}`);
+  const selecionadas: string[] = JSON.parse(estado.valores.habilidades ?? "[]");
+  if (estado.ok) {
     return (
-      <section className="sucessoCandidatura" aria-live="polite">
+      <section className="sucessoCandidatura" role="status">
         <span aria-hidden="true">✓</span>
-        <h2>Candidatura preparada!</h2>
-        <p>
-          {nome}, seus dados para <strong>{tituloDaVaga}</strong> e suas {" "}
-          {habilidades.length} {habilidades.length === 1 ? "habilidade" : "habilidades"} foram conferidos.
-        </p>
-        <p className="avisoDidatico">
-          Nesta etapa do projeto os dados ficam apenas nesta aba e ainda não são enviados para um servidor.
-        </p>
-        <button
-          className="botao botaoSecundario"
-          type="button"
-          onClick={() => setEnviada(false)}
-        >
-          Corrigir alguma coisa
-        </button>
+        <h2>{estado.mensagem}</h2>
+        <p>{estado.valores.nome}, recebemos seu interesse em <strong>{tituloDaVaga}</strong> e suas habilidades.</p>
       </section>
     );
   }
-
   return (
     <section className="candidatura" aria-labelledby="titulo-candidatura">
       <div className="cabecalhoSecao">
@@ -79,84 +26,27 @@ export default function FormularioDeCandidatura({
         <h2 id="titulo-candidatura">Mostre seu interesse</h2>
         <p>Preencha seus dados e inclua pelo menos uma habilidade.</p>
       </div>
-
-      <form onSubmit={enviar} noValidate>
-        <label>
-          Nome
-          <input
-            name="nome"
-            type="text"
-            value={nome}
-            onChange={(evento) => setNome(evento.target.value)}
-            autoComplete="name"
-            required
-          />
-        </label>
-
-        <label>
-          E-mail
-          <input
-            name="email"
-            type="email"
-            value={email}
-            onChange={(evento) => setEmail(evento.target.value)}
-            autoComplete="email"
-            aria-describedby="aviso-email"
-            required
-          />
-          {email.length > 0 && !emailParece && (
-            <small id="aviso-email" className="erroCampo">
-              Digite um e-mail completo, incluindo @ e o domínio.
-            </small>
-          )}
-        </label>
-
-        <div className="campoHabilidades">
-          <label htmlFor="habilidade">Habilidades</label>
-          <div>
-            <input
-              id="habilidade"
-              type="text"
-              value={rascunho}
-              onChange={(evento) => setRascunho(evento.target.value)}
-              onKeyDown={aoPressionarTecla}
-              placeholder="Ex.: HTML"
-            />
-            <button
-              className="botao botaoSecundario"
-              type="button"
-              onClick={adicionarHabilidade}
-            >
-              Adicionar
-            </button>
-          </div>
-          <small>Pressione Enter ou use o botão para incluir.</small>
-        </div>
-
-        {habilidades.length > 0 && (
-          <ul className="listaHabilidades" aria-label="Habilidades adicionadas">
-            {habilidades.map((habilidade) => (
-              <li key={habilidade}>
+      <form action={acao} className="formulario" noValidate>
+        <input type="hidden" name="vagaId" value={vagaId} />
+        {estado.erros.vagaId && <p className="erroCampo" role="alert">{estado.erros.vagaId}</p>}
+        <CampoDeFormulario nome="nome" rotulo="Nome" autoComplete="name" estado={estado} />
+        <CampoDeFormulario nome="email" rotulo="E-mail" tipo="email" autoComplete="email" estado={estado} />
+        <fieldset className="habilidadesFormulario" aria-describedby={estado.erros.habilidades ? "habilidades-erro" : undefined}>
+          <legend>Habilidades</legend>
+          <div className="opcoesHabilidades">
+            {HABILIDADES.map((habilidade) => (
+              <label className="opcaoCheckbox" key={habilidade}>
+                <input type="checkbox" name="habilidades" value={habilidade} defaultChecked={selecionadas.includes(habilidade)} />
                 {habilidade}
-                <button
-                  type="button"
-                  onClick={() => removerHabilidade(habilidade)}
-                  aria-label={`Remover ${habilidade}`}
-                >
-                  ×
-                </button>
-              </li>
+              </label>
             ))}
-          </ul>
-        )}
-
-        <button
-          className="botao botaoPrimario"
-          type="submit"
-          disabled={!podeEnviar}
-        >
-          Enviar candidatura
-        </button>
+          </div>
+          <label htmlFor="outra-habilidade">Outra habilidade (opcional)</label>
+          <input id="outra-habilidade" name="habilidades" type="text" defaultValue={selecionadas.find((valor) => !HABILIDADES.includes(valor)) ?? ""} />
+          {estado.erros.habilidades && <p id="habilidades-erro" className="erroCampo" role="alert">{estado.erros.habilidades}</p>}
+        </fieldset>
+        {estado.mensagem && <p className="erroCampo" role="alert">{estado.mensagem}</p>}
+        <BotaoDeEnviar>Enviar candidatura</BotaoDeEnviar>
       </form>
     </section>
   );

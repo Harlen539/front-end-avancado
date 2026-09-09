@@ -48,6 +48,9 @@ export default async function PaginaDaEmpresa({
           Visitar site <span aria-hidden="true">↗</span>
         </a>
       </header>
+      <div className="acoes">
+        <Link className="botao botaoSecundario" href={`/empresas/${slug}/editar`}>Editar perfil</Link>
+      </div>
       <AbasDaEmpresa sobre={empresa.sobre} vagas={vagasDaEmpresa} />
     </main>
   );

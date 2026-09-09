@@ -1,4 +1,21 @@
-import type { Empresa, Vaga } from "@/lib/tipos";
+import type { Candidatura, Empresa, Vaga } from "@/lib/tipos";
+
+// Memória do processo, compartilhada entre as rotas e preservada no hot reload.
+// Reiniciar o servidor apaga as escritas. A aula 06 substituirá isto por banco.
+const globalDoCatalogo = globalThis as typeof globalThis & {
+  lequeDeVagas?: {
+    criadas: Vaga[];
+    arquivadas: Set<string>;
+    candidaturas: Candidatura[];
+    empresas: Map<string, Empresa>;
+  };
+};
+const memoria = (globalDoCatalogo.lequeDeVagas ??= {
+  criadas: [],
+  arquivadas: new Set<string>(),
+  candidaturas: [],
+  empresas: new Map<string, Empresa>(),
+});
 
 const FONTE =
   process.env.FONTE_DADOS ??
@@ -23,8 +40,14 @@ async function buscarJson<T>(
   return resposta.json() as Promise<T>;
 }
 
-export function listarVagas(): Promise<Vaga[]> {
-  return buscarJson<Vaga[]>("vagas.json", "vagas");
+export async function listarVagas(): Promise<Vaga[]> {
+  const buscadas = await buscarJson<Vaga[]>("vagas.json", "vagas");
+  return [...memoria.criadas, ...buscadas]
+    .filter((vaga) => !memoria.arquivadas.has(vaga.id))
+    .map((vaga) => ({
+      ...vaga,
+      empresa: memoria.empresas.get(vaga.empresaSlug)?.nome ?? vaga.empresa,
+    }));
 }
 
 export async function buscarVaga(id: string): Promise<Vaga | undefined> {
@@ -32,8 +55,9 @@ export async function buscarVaga(id: string): Promise<Vaga | undefined> {
   return vagas.find((vaga) => vaga.id === id);
 }
 
-export function listarEmpresas(): Promise<Empresa[]> {
-  return buscarJson<Empresa[]>("empresas.json", "empresas");
+export async function listarEmpresas(): Promise<Empresa[]> {
+  const empresas = await buscarJson<Empresa[]>("empresas.json", "empresas");
+  return empresas.map((empresa) => memoria.empresas.get(empresa.slug) ?? empresa);
 }
 
 export async function buscarEmpresa(
@@ -41,4 +65,20 @@ export async function buscarEmpresa(
 ): Promise<Empresa | undefined> {
   const empresas = await listarEmpresas();
   return empresas.find((empresa) => empresa.slug === slug);
+}
+
+export function guardarVaga(vaga: Vaga): void {
+  memoria.criadas.unshift(vaga);
+}
+
+export function arquivarVaga(id: string): void {
+  memoria.arquivadas.add(id);
+}
+
+export function guardarCandidatura(candidatura: Candidatura): void {
+  memoria.candidaturas.push(candidatura);
+}
+
+export function guardarEmpresa(empresa: Empresa): void {
+  memoria.empresas.set(empresa.slug, empresa);
 }
