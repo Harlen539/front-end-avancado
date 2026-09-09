@@ -228,6 +228,7 @@ O projeto do semestre será desenvolvido em equipe de **3 a 4 integrantes**.
 * Harlen Henrick
 * Bruno Venâncio
 * Carlos eduardo
+* Alyssa lima
 ---
 
 ## 📖 Conteúdos do semestre
