@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import CardDeVaga from "@/components/CardDeVaga";
 import Filtros from "@/components/Filtros";
 import type { Vaga } from "@/lib/tipos";
@@ -9,29 +10,128 @@ type MuralDeVagasProps = {
   vagas: Vaga[];
 };
 
-export default function MuralDeVagas({ vagas }: MuralDeVagasProps) {
-  const [busca, setBusca] = useState("");
-  const [area, setArea] = useState("Todas");
+const TODAS = "Todas";
 
-  const areas = ["Todas", ...new Set(vagas.map((vaga) => vaga.area))];
-  const termo = busca.trim().toLocaleLowerCase("pt-BR");
+type Mudancas = Partial<{
+  busca: string;
+  area: string;
+  senioridade: string;
+  iniciante: boolean;
+}>;
+
+function montarUrl(pathname: string, atuais: string, mudancas: Mudancas) {
+  const params = new URLSearchParams(atuais);
+
+  const definir = (chave: string, valor: string | undefined) => {
+    if (valor) params.set(chave, valor);
+    else params.delete(chave);
+  };
+
+  if ("busca" in mudancas) definir("busca", mudancas.busca?.trim());
+  if ("area" in mudancas)
+    definir("area", mudancas.area === TODAS ? undefined : mudancas.area);
+  if ("senioridade" in mudancas)
+    definir(
+      "senioridade",
+      mudancas.senioridade === TODAS ? undefined : mudancas.senioridade,
+    );
+  if ("iniciante" in mudancas)
+    definir("iniciante", mudancas.iniciante ? "1" : undefined);
+
+  const query = params.toString();
+  return query ? `${pathname}?${query}` : pathname;
+}
+
+export default function MuralDeVagas({ vagas }: MuralDeVagasProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const paramsAtuais = searchParams.toString();
+
+  const areas = useMemo(
+    () => [TODAS, ...new Set(vagas.map((vaga) => vaga.area))],
+    [vagas],
+  );
+  const senioridades = useMemo(
+    () => [TODAS, ...new Set(vagas.map((vaga) => vaga.senioridade))],
+    [vagas],
+  );
+
+  // Valores vindos da URL; parâmetros inválidos caem em "Todas".
+  const buscaNaUrl = searchParams.get("busca") ?? "";
+  const areaParam = searchParams.get("area") ?? TODAS;
+  const senioridadeParam = searchParams.get("senioridade") ?? TODAS;
+  const area = areas.includes(areaParam) ? areaParam : TODAS;
+  const senioridade = senioridades.includes(senioridadeParam)
+    ? senioridadeParam
+    : TODAS;
+  const soIniciantes = searchParams.get("iniciante") === "1";
+
+  // Texto digitado fica local para a digitação não travar;
+  // a URL é atualizada com debounce, sem poluir o histórico.
+  const [textoBusca, setTextoBusca] = useState(buscaNaUrl);
+
+  useEffect(() => {
+    setTextoBusca(buscaNaUrl); // Voltar/Avançar ou link novo
+  }, [buscaNaUrl]);
+
+  useEffect(() => {
+    if (textoBusca.trim() === buscaNaUrl.trim()) return;
+    const id = setTimeout(() => {
+      router.replace(montarUrl(pathname, paramsAtuais, { busca: textoBusca }), {
+        scroll: false,
+      });
+    }, 300);
+    return () => clearTimeout(id);
+  }, [textoBusca, buscaNaUrl, pathname, paramsAtuais, router]);
+
+  // Selects e checkbox usam push: cada mudança vira uma entrada no histórico.
+  function atualizar(mudancas: Mudancas) {
+    router.push(montarUrl(pathname, paramsAtuais, mudancas), { scroll: false });
+  }
+
+  function limpar() {
+    setTextoBusca("");
+    router.push(pathname, { scroll: false });
+  }
+
+  const termo = buscaNaUrl.trim().toLocaleLowerCase("pt-BR");
   const visiveis = vagas.filter((vaga) => {
-    const correspondeArea = area === "Todas" || vaga.area === area;
-    const texto = `${vaga.titulo} ${vaga.empresa} ${vaga.local} ${vaga.senioridade}`.toLocaleLowerCase("pt-BR");
-    return correspondeArea && texto.includes(termo);
+    const correspondeArea = area === TODAS || vaga.area === area;
+    const correspondeSenioridade =
+      senioridade === TODAS || vaga.senioridade === senioridade;
+    const correspondeIniciante = !soIniciantes || vaga.aceitaIniciante;
+    const texto = `${vaga.titulo} ${vaga.empresa} ${vaga.local} ${vaga.senioridade}`.toLocaleLowerCase(
+      "pt-BR",
+    );
+    return (
+      correspondeArea &&
+      correspondeSenioridade &&
+      correspondeIniciante &&
+      texto.includes(termo)
+    );
   });
   const aceitamIniciante = visiveis.filter(
     (vaga) => vaga.aceitaIniciante,
   ).length;
+  const temFiltroAtivo =
+    termo !== "" || area !== TODAS || senioridade !== TODAS || soIniciantes;
 
   return (
     <section aria-labelledby="titulo-resultados">
       <Filtros
-        busca={busca}
-        aoMudarBusca={setBusca}
+        busca={textoBusca}
+        aoMudarBusca={setTextoBusca}
         area={area}
-        aoMudarArea={setArea}
+        aoMudarArea={(valor) => atualizar({ area: valor })}
         areas={areas}
+        senioridade={senioridade}
+        aoMudarSenioridade={(valor) => atualizar({ senioridade: valor })}
+        senioridades={senioridades}
+        soIniciantes={soIniciantes}
+        aoMudarSoIniciantes={(valor) => atualizar({ iniciante: valor })}
+        temFiltroAtivo={temFiltroAtivo}
+        aoLimpar={limpar}
       />
 
       <div className="resumoResultados" aria-live="polite">
@@ -50,7 +150,12 @@ export default function MuralDeVagas({ vagas }: MuralDeVagasProps) {
       ) : (
         <div className="estadoVazio">
           <h2>Nenhuma vaga encontrada</h2>
-          <p>Tente outro termo ou escolha uma área diferente.</p>
+          <p>Tente outro termo ou ajuste os filtros.</p>
+          {temFiltroAtivo && (
+            <button type="button" onClick={limpar}>
+              Limpar filtros
+            </button>
+          )}
         </div>
       )}
     </section>
