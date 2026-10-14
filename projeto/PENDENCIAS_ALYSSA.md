@@ -1,48 +1,38 @@
-# Pendências da Alyssa — Leque de Vagas
+# Pendências — Leque de Vagas
 
-Levantamento em 14/10/2026, comparando o código local com os [desafios 01–06](https://aulas.umlequedetecnologia.com.br/cursos/introducao-nextjs) e o [briefing do projeto](https://cdn.aulas.umlequedetecnologia.com.br/public/introducao-nextjs/projeto/brief.html). Esta é uma divisão de trabalho para Bruno e Alyssa subirem as pendências. Não atribui retroativamente a eles as quatro frentes originais.
+Estado revisto em 14/10/2026 na branch `codex/leque-vagas-revisao`. Este arquivo registra o que foi conferido e o que depende de configuração ou confirmação; ele não atribui autoria individual às alterações desta revisão.
 
-## Pré-requisito
+## Implementado nesta revisão
 
-Atualização de 14/10/2026: a integração técnica do banco, de Empresa e de Candidatura foi feita na branch local `bruno/aula-06-persistencia` para manter a aplicação funcional. Os itens marcados abaixo como concluídos ainda precisam da revisão e dos commits próprios da Alyssa. A política de tipos e fontes está em `../DADOS.md`; a confirmação da equipe continua pendente.
+- Busca com debounce sem sincronização de estado em efeito; filtros por área, senioridade e iniciante preservados e combináveis pela URL.
+- Navegação compartilhável com Voltar/Avançar, limpeza de parâmetros, contagem e estado vazio.
+- Tailwind CSS integrado aos controles de busca e filtros, junto ao CSS de identidade existente.
+- Persistência local SQLite preservada e configuração alternativa PostgreSQL com schema e migration separados para produção.
+- Confirmação da candidatura informa a quantidade de habilidades. “Corrigir alguma coisa” atualiza o registro existente; o fallback nativo mantém o envio sem JavaScript.
+- Arquivo duplicado `projeto/FormularioDeCandidatura.tsx` removido após confirmar que as páginas importavam `components/FormularioDeCandidatura.tsx`.
+- Instalação limpa, migrations locais, lint, build e fluxos de navegador registrados em [`docs/VALIDACAO_REVISAO.md`](docs/VALIDACAO_REVISAO.md).
 
-## Parte da Alyssa: empresas, candidaturas e filtros
+## Falta configurar para publicação persistente
 
-### 1. Empresa no banco — aula 06
+- Escolher/configurar um provedor PostgreSQL e cadastrar `DATABASE_URL` na Vercel sem publicar credenciais.
+- Aplicar `npx prisma migrate deploy --schema prisma/postgres/schema.prisma` ao banco de produção antes de aceitar gravações.
+- A publicação consultada continua respondendo HTTP 500 em `/empresas/aurora-tech` e HTTP 503 em `/api/empresas/aurora-tech`. Os logs históricos da Vercel não estavam disponíveis no plano conectado; não foi possível atribuir causa confirmada nem verificar a correção online.
+- Planejar importação se dados do SQLite local precisarem migrar para a nova instância PostgreSQL.
 
-- [x] O model `Empresa` está no `prisma/schema.prisma` e `guardarEmpresa` grava no banco sem mudar o slug; revisar a implementação e a migration compartilhada.
-- [x] `DADOS.md` registra a precedência do banco; `buscarEmpresa` e `listarEmpresas` a aplicam. Falta a confirmação de Bruno e Alyssa sobre a decisão.
-- [x] `GET /api/empresas/[slug]` devolve JSON ou 404. Esse Route Handler é exigência **nova da aula 06**; a proibição de `app/api/` valia para a aula 05.
-- [ ] Editar uma empresa, reiniciar o servidor e confirmar que a alteração persiste. Documentar no PR a regra de precedência das fontes.
+## Fontes e enunciados
 
-### 2. Candidatura no banco — aula 06
+- O índice do curso e o briefing não puderam ser carregados nesta revisão. Portanto, a conferência dos desafios 01–06 parte das referências e registros já versionados junto ao código; os requisitos oficiais exatos precisam ser revalidados quando as páginas estiverem acessíveis.
+- A URL do desafio 07 foi consultada novamente em 14/10/2026 e retornou 404. Nenhum requisito foi deduzido do título.
+- O Checkpoint 1 foi tratado separadamente: os registros do projeto pedem Tailwind, responsividade e acessibilidade básica. Login, painel administrativo e outras entregas de checkpoints posteriores não foram implementados.
 
-- [x] O model `Candidatura` tem relação com `Vaga` e a migration foi criada; vagas do JSON são espelhadas no banco antes de receber candidaturas.
-- [x] `guardarCandidatura` grava no banco pela Server Action existente, preservando a validação Zod e o POST sem JavaScript.
-- [x] O detalhe mostra a contagem de candidaturas do banco e a ação recusa ID de vaga inexistente; revisar visualmente a mensagem do formulário.
-- [ ] Enviar uma candidatura, reiniciar o servidor e confirmar que o registro e a contagem persistem. No PR, escrever uma frase sobre como atender a um pedido de exclusão de candidatura, pois o e-mail passa a ficar armazenado.
+## Evidências e participação da equipe
 
-### 3. Filtros ainda pedidos pelo briefing do Checkpoint 1
+- Capturas e gravações reais dos fluxos desta revisão estão em [`docs/evidencias-revisao/`](docs/evidencias-revisao/); as capturas históricas da aula 05 permanecem em [`docs/evidencias-aula05/`](docs/evidencias-aula05/).
+- Faltam as capturas de ambiente (`node -v`/`npm -v`) e a imagem de duas abas visíveis simultaneamente, caso o enunciado oficial ainda as exija. A diferença de metadata de duas empresas foi verificada em navegador, mas não foi registrada nesse formato de captura.
+- O experimento comparando `revalidateTag` com `revalidatePath` e a medição formal de quantidade/duração de consultas não foram executados nesta revisão. O curso não forneceu enunciado acessível para confirmar método e critério; registrar como pendente, sem afirmar resultado.
+- Os nomes registrados são Harlen Henrick, Bruno Venâncio, Carlos Eduardo e Alyssa Lima. A distribuição das quatro frentes, aprovações de PR e envio de links devem ser confirmados pela equipe; não inventar atribuições ou revisões.
+- Depoimentos e reflexões pessoais continuam sendo responsabilidade de cada integrante.
 
-- [ ] A listagem atual guarda `busca` e `area` em `useState` dentro de `components/MuralDeVagas.tsx`. O [briefing](https://cdn.aulas.umlequedetecnologia.com.br/public/introducao-nextjs/projeto/brief.html) pede filtros por **área, senioridade e aceita iniciante**, com estado na URL via `searchParams`. Acrescentar os dois filtros que faltam e tornar o resultado compartilhável por link.
-- [ ] Conferir links com filtros, botão Voltar do navegador, contagens e estado vazio. Combinar com Bruno a relação entre esses filtros e a consulta ao banco após a migração.
-- [ ] O briefing também pede Tailwind, responsividade e acessibilidade básica no Checkpoint 1; o projeto usa CSS comum. Planejar e registrar a adaptação visual com a equipe para o checkpoint, sem confundir essa exigência com os desafios 01–06, que pediam CSS comum.
+## Etapas posteriores
 
-### 4. Evidências antigas sob responsabilidade da Alyssa
-
-- [ ] Completar no README os **nomes e frentes dos quatro integrantes**, após confirmar com a equipe. Hoje as quatro células dizem “preencher”. Se a equipe tem três integrantes, registrar a exceção e a divisão da frente 4 conforme o briefing. O histórico local mostra commits de Harlen e Carlos, mas não comprova commits próprios de Bruno e Alyssa; conferir no GitHub e garantir participação real daqui para frente.
-- [ ] Adicionar prints reais de duas empresas diferentes com títulos distintos na aba do navegador, exigidos no [desafio 04](https://cdn.aulas.umlequedetecnologia.com.br/public/introducao-nextjs/aula-04-data-fetching/desafio.html).
-- [ ] Registrar as demonstrações pedidas no [desafio 05](https://cdn.aulas.umlequedetecnologia.com.br/public/introducao-nextjs/aula-05-server-actions/desafio.html): edição com erros por campo e sucesso também em `/empresas`; candidatura com “Enviando…” e confirmação; print de envio sem JavaScript. Já há prints em `docs/evidencias-aula05`, mas ainda faltam os vídeos exigidos para as frentes de empresa e candidatura.
-- [ ] Rever com a equipe as descrições e revisões dos PRs antigos. Documentar apenas PRs e reviews que realmente ocorreram; não criar evidência retroativa fictícia. Cada novo PR da aula 06 precisa de revisão cruzada.
-- [ ] Conferir o README da raiz do repositório: ainda há marcadores `TODO` dentro das explicações pessoais. A redação final e a reflexão sobre dificuldade devem ser das pessoas da equipe. Confirmar que os links finais do site e repositório foram enviados ao grupo; isso não é verificável apenas pelo código.
-
-### 5. Entrega da Alyssa
-
-- [ ] Abrir branch e PR próprios, com commits feitos pela conta da Alyssa, migrations da sua parte e prints do Prisma Studio com empresa e candidatura persistidas. Pedir revisão de outra frente antes do merge.
-- [ ] Após integrar com Bruno, executar `npm run lint`, `npm run build` e testar uma clonagem limpa com `npm i && npx prisma migrate dev`. Conferir os fluxos das aulas 03–05 para evitar regressões.
-
-## Estado do desafio 07 e etapas posteriores
-
-O índice do curso mostra um link para o desafio 07, mas em 14/10/2026 a URL do [desafio 07](https://cdn.aulas.umlequedetecnologia.com.br/public/introducao-nextjs/aula-07-autenticacao-e-autorizacao/desafio.html) responde **404**. Por isso, não há enunciado verificável para dividir entre vocês. Conferir quando for publicado.
-
-O briefing prevê, para checkpoints posteriores, autenticação e autorização, CRUD completo de vagas, painel, testes, CI, performance e SEO. São metas do semestre; não devem ser marcadas como requisitos já publicados dos desafios 01–06. A equipe ainda precisará planejá-las quando chegarem os respectivos enunciados.
+Autenticação, autorização, painel, CRUD restante, CI, testes automatizados adicionais, performance e SEO ficam para os checkpoints com enunciados publicados. A política para pedidos de correção/exclusão de e-mails de candidatura também precisa ser definida pela equipe.

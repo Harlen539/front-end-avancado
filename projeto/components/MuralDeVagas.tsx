@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import CardDeVaga from "@/components/CardDeVaga";
 import Filtros from "@/components/Filtros";
@@ -67,23 +67,13 @@ export default function MuralDeVagas({ vagas }: MuralDeVagasProps) {
     : TODAS;
   const soIniciantes = searchParams.get("iniciante") === "1";
 
-  // Texto digitado fica local para a digitação não travar;
-  // a URL é atualizada com debounce, sem poluir o histórico.
-  const [textoBusca, setTextoBusca] = useState(buscaNaUrl);
-
-  useEffect(() => {
-    setTextoBusca(buscaNaUrl); // Voltar/Avançar ou link novo
-  }, [buscaNaUrl]);
-
-  useEffect(() => {
-    if (textoBusca.trim() === buscaNaUrl.trim()) return;
-    const id = setTimeout(() => {
-      router.replace(montarUrl(pathname, paramsAtuais, { busca: textoBusca }), {
-        scroll: false,
-      });
-    }, 300);
-    return () => clearTimeout(id);
-  }, [textoBusca, buscaNaUrl, pathname, paramsAtuais, router]);
+  // O campo com debounce usa a query inteira como chave. Ao navegar com Voltar/Avançar,
+  // ele é recriado já com o valor correspondente, sem sincronizar estado em efeito.
+  function buscar(texto: string) {
+    router.replace(montarUrl(pathname, paramsAtuais, { busca: texto }), {
+      scroll: false,
+    });
+  }
 
   // Selects e checkbox usam push: cada mudança vira uma entrada no histórico.
   function atualizar(mudancas: Mudancas) {
@@ -91,7 +81,6 @@ export default function MuralDeVagas({ vagas }: MuralDeVagasProps) {
   }
 
   function limpar() {
-    setTextoBusca("");
     router.push(pathname, { scroll: false });
   }
 
@@ -120,8 +109,9 @@ export default function MuralDeVagas({ vagas }: MuralDeVagasProps) {
   return (
     <section aria-labelledby="titulo-resultados">
       <Filtros
-        busca={textoBusca}
-        aoMudarBusca={setTextoBusca}
+        busca={buscaNaUrl}
+        chaveDaBusca={paramsAtuais}
+        aoBuscar={buscar}
         area={area}
         aoMudarArea={(valor) => atualizar({ area: valor })}
         areas={areas}

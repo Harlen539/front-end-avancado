@@ -106,6 +106,15 @@ export async function contarCandidaturas(vagaId: string): Promise<number> {
   return prisma.candidatura.count({ where: { vagaId } });
 }
 
+export async function buscarCandidatura(id: string, vagaId: string): Promise<Candidatura | undefined> {
+  const candidatura = await prisma.candidatura.findFirst({
+    where: { id, vagaId },
+    select: { id: true, vagaId: true, nome: true, email: true, habilidades: true },
+  });
+  if (!candidatura) return undefined;
+  return { ...candidatura, habilidades: JSON.parse(candidatura.habilidades) as string[] };
+}
+
 export async function listarEmpresas(): Promise<Empresa[]> {
   await connection();
   const publicadas = await listarEmpresasPublicadas();
@@ -133,6 +142,23 @@ export async function guardarCandidatura(candidatura: Candidatura): Promise<void
     const vaga = await tx.vaga.findUnique({ where: { id: candidatura.vagaId }, select: { arquivada: true } });
     if (!vaga || vaga.arquivada) throw new Error("Esta vaga não está mais disponível.");
     await tx.candidatura.create({ data: { ...candidatura, habilidades: JSON.stringify(candidatura.habilidades) } });
+  });
+}
+
+export async function corrigirCandidatura(candidatura: Candidatura): Promise<void> {
+  await sincronizarCatalogo();
+  await prisma.$transaction(async (tx) => {
+    const vaga = await tx.vaga.findUnique({ where: { id: candidatura.vagaId }, select: { arquivada: true } });
+    if (!vaga || vaga.arquivada) throw new Error("Esta vaga não está mais disponível.");
+    const atualizada = await tx.candidatura.updateMany({
+      where: { id: candidatura.id, vagaId: candidatura.vagaId },
+      data: {
+        nome: candidatura.nome,
+        email: candidatura.email,
+        habilidades: JSON.stringify(candidatura.habilidades),
+      },
+    });
+    if (atualizada.count !== 1) throw new Error("A candidatura não foi encontrada para correção.");
   });
 }
 

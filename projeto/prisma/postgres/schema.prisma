@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Vaga {
+  id               String        @id
+  titulo           String
+  empresa          String
+  empresaSlug      String
+  area             String
+  senioridade      String
+  local             String
+  aceitaIniciante  Boolean       @default(false)
+  descricao        String
+  publicadaEm      String
+  criadaEm         DateTime      @default(now())
+  arquivada        Boolean       @default(false)
+  candidaturas     Candidatura[]
+
+  @@index([arquivada, aceitaIniciante])
+  @@index([empresaSlug])
+}
+
+model Empresa {
+  slug  String @id
+  nome  String
+  sobre String
+  site  String
+}
+
+model Candidatura {
+  id          String   @id
+  vagaId      String
+  nome        String
+  email       String
+  habilidades String
+  criadaEm    DateTime @default(now())
+  vaga        Vaga     @relation(fields: [vagaId], references: [id])
+
+  @@index([vagaId])
+}
+
+model SincronizacaoCatalogo {
+  nome    String @id
+  revisao String
+}

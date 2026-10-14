@@ -1,19 +1,63 @@
-# Decisões de dados — aula 06
+# Dados e persistência
 
-O contrato das telas continua em `projeto/lib/tipos.ts`; o Prisma gera os tipos usados na persistência. Campos internos como `criadaEm` e `arquivada` não são enviados ao cliente na listagem.
+## Contratos e fontes
 
-O JSON publicado é o catálogo inicial. `lib/api.ts` busca esse JSON com cache de 60 segundos e espelha as vagas no SQLite. A revisão SHA-256 dos campos publicados fica em `SincronizacaoCatalogo`; quando não muda, não repetimos os upserts. A importação preserva `arquivada` e `criadaEm`. IDs do JSON são números positivos em texto; novas vagas usam UUID. Uma vaga removida do JSON continua no banco até ser arquivada explicitamente, preservando candidaturas existentes.
+Os tipos de tela estão em `projeto/lib/tipos.ts`. Os arquivos `projeto/dados/vagas.json` e `projeto/dados/empresas.json` são o catálogo publicado e a origem inicial dos registros. `FONTE_DADOS` pode apontar para outra pasta Raw; sem essa variável, `lib/api.ts` usa os JSONs deste repositório. A leitura dos JSONs usa cache de 60 segundos e valida os dados com Zod.
 
-Quando o slug da empresa existe no JSON e no banco, o banco vence. A edição no site é mais recente e o JSON não é alterado. `GET /api/empresas/[slug]` devolve o perfil público ou 404 para slug ausente.
+No servidor, as vagas do catálogo são espelhadas no banco para que candidaturas tenham uma relação com uma vaga persistida. Uma revisão SHA-256 evita repetir a sincronização quando o catálogo não mudou. Arquivamento e edições locais são preservados durante a sincronização. Para empresas, o registro editado no banco prevalece sobre o JSON; uma empresa que só existe no JSON continua disponível como dado inicial.
 
-Uma candidatura tem chave estrangeira para `Vaga`, inclusive para vagas originalmente vindas do JSON. As habilidades são guardadas como JSON em um campo String do SQLite. Arquivar uma vaga marca `arquivada = true`, mantém candidaturas anteriores e bloqueia novas. O mural lê somente vagas não arquivadas; os números vêm de duas consultas `count()` ao banco.
+As telas consultam o banco para vagas, empresas, candidaturas e contagens. Campos internos, como `criadaEm` e `arquivada`, não fazem parte do tipo público `Vaga`. IDs de vagas do catálogo são números em texto; novas vagas recebem UUIDs. Uma vaga removida do JSON não é excluída do banco automaticamente.
 
-As Server Actions mantêm `revalidatePath` após escritas. As tags pertencem ao fetch do JSON, não às consultas Prisma. `connection()` força as telas que leem dados mutáveis a consultar o banco em cada requisição; `generateStaticParams` continua enumerando os IDs e slugs do JSON para as rotas. Isso evita que uma página HTML antiga oculte uma edição ou mostre uma vaga arquivada após reiniciar.
+## Desenvolvimento local: SQLite
 
-## Execução e publicação
+O schema `projeto/prisma/schema.prisma` usa SQLite em `prisma/dev.db`, ignorado pelo Git. A migration existente em `prisma/migrations/` não deve ser removida nem recriada para preparar uma instalação.
 
-Em `projeto/`, execute `npm install` e `npx prisma migrate dev`, depois `npm run dev`. O arquivo `prisma/dev.db` é local e ignorado pelo Git; a migration é versionada. Há um único cliente Prisma em `lib/prisma.ts`.
+```bash
+cd projeto
+npm ci
+npm run prisma:generate
+npm run prisma:migrate:dev
+npm run dev
+```
 
-SQLite local **não fornece persistência durável nas funções da Vercel**. A hospedagem pública exige um banco persistente compatível e configuração segura da conexão antes de usar os formulários publicados. O desafio da aula 06 foi implementado e testado com SQLite local; esta versão não deve ser apresentada como persistência durável na Vercel.
+`prisma:migrate:dev` aplica as migrations locais sem apagar o banco. Se houver dados locais que precisem ser preservados, faça uma cópia do `prisma/dev.db` antes de qualquer alteração manual de schema. Para iniciar outra instalação, a mesma sequência cria o arquivo local e aplica as migrations versionadas.
 
-Os testes executados nesta integração estão em `projeto/docs/VALIDACAO_BRUNO.md`. Prints, vídeos, aprovação cruzada de PR e confirmação da divisão de frentes exigem participação real da equipe.
+## Publicação: PostgreSQL
+
+SQLite em arquivo local não é persistente entre execuções serverless da Vercel. A aplicação inclui um schema e uma migration PostgreSQL separados em `projeto/prisma/postgres/`. A geração do Prisma Client usa PostgreSQL na Vercel e SQLite localmente.
+
+1. Configure `DATABASE_URL` nas variáveis de ambiente da Vercel com a URL de conexão PostgreSQL do provedor escolhido. Use o formato fornecido pelo provedor e mantenha a variável fora do repositório.
+2. Antes de servir a aplicação, aplique a migration versionada ao banco de produção:
+
+   ```bash
+   cd projeto
+   npx prisma migrate deploy --schema prisma/postgres/schema.prisma
+   ```
+
+3. Configure a Vercel para instalar dependências e executar `npm run build`. O script de build gera o cliente PostgreSQL e falha se a variável `DATABASE_URL` estiver ausente em ambiente Vercel.
+4. Não use `prisma migrate dev` na publicação. Ele é o fluxo de desenvolvimento SQLite; use `migrate deploy` com o schema PostgreSQL para aplicar migrations já versionadas.
+
+Esta configuração não cria uma conta ou banco de dados e não migra automaticamente registros do arquivo SQLite local. Nenhuma credencial está versionada. Até um banco externo ser configurado e a migration PostgreSQL aplicada, as escritas da publicação não estão habilitadas para persistência durável.
+
+## Escritas, cache e revalidação
+
+Server Actions validam os formulários com Zod antes de gravar. Vagas e candidaturas verificam relações e estado de arquivamento no banco. A correção da candidatura atualiza o registro existente pelo ID recebido, sem inserir uma segunda candidatura. O Route Handler `GET /api/empresas/[slug]` retorna o perfil em JSON ou 404 quando o slug não existe.
+
+As leituras mutáveis usam `connection()` para evitar que HTML estático antigo esconda alterações no banco. As ações usam `revalidatePath` nas páginas que exibem os dados alterados. As tags e o intervalo de 60 segundos se aplicam à leitura do catálogo JSON, não às consultas Prisma.
+
+## Variáveis de ambiente
+
+| Variável | Uso | Exemplo sem segredo |
+| --- | --- | --- |
+| `FONTE_DADOS` | Pasta Raw alternativa para os JSONs do catálogo | `https://raw.githubusercontent.com/organizacao/repositorio/main/projeto/dados` |
+| `DATABASE_URL` | Obrigatória na Vercel para o schema PostgreSQL | `postgresql://usuario:senha@host:5432/banco?sslmode=require` |
+| `PRISMA_LOG_QUERIES` | Habilita logs SQL locais para medições | `1` |
+
+Não publique uma URL real com usuário ou senha. Em ambiente local, `DATABASE_URL` não é necessário: o schema SQLite já define o arquivo ignorado.
+
+## Limitações conhecidas
+
+- O banco PostgreSQL depende da escolha e configuração de um provedor externo pela equipe.
+- Migração de conteúdo SQLite para PostgreSQL não é automatizada; planeje uma importação se dados locais precisarem ser preservados fora do ambiente de desenvolvimento.
+- Candidaturas guardam nome, e-mail e habilidades. A equipe deve definir o procedimento de atendimento a pedidos de correção ou exclusão.
+- A conferência do ambiente Vercel tem logs e retenção limitados pelo plano conectado; consulte `projeto/docs/VALIDACAO_BRUNO.md` para o resultado observado nesta revisão.

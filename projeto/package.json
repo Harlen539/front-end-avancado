@@ -4,24 +4,31 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/generate-prisma.mjs && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "node scripts/generate-prisma.mjs",
+    "prisma:generate": "node scripts/generate-prisma.mjs",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy --schema prisma/postgres/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
-    "next": "16.3.3",
+    "next": "^16.4.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "zod": "^4.6.1"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.3",
+    "eslint-config-next": "^16.4.1",
+    "postcss": "^8.5.30",
     "prisma": "^6.19.3",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5"
   }
 }

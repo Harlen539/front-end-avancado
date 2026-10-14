@@ -1,121 +1,63 @@
 # Leque de Vagas
 
-Mural de vagas de tecnologia para pessoas que estão começando ou migrando de carreira. Este repositório reúne as entregas das aulas 1 a 5 de Introdução ao Next.js.
+Aplicação Next.js para consultar vagas de tecnologia, conhecer empresas e enviar candidaturas. As vagas e empresas de exemplo são dados didáticos.
 
-> As vagas e empresas são fictícias e foram criadas para fins didáticos.
+## Estado desta revisão
 
-## Site e repositório
+- Desafios 01–06: o código atual mantém App Router, TypeScript, CSS existente, componentes, rotas, metadata, busca de dados, validação Zod, Server Actions, persistência e API de leitura. O índice do curso e o briefing não foram acessíveis nesta conferência; a lista de requisitos publicada de cada aula precisa ser confirmada quando as páginas estiverem disponíveis.
+- Checkpoint 1: filtros de área, senioridade e iniciante usam a URL; Tailwind CSS foi integrado aos controles do filtro, mantendo as regras visuais existentes e o layout responsivo.
+- Aula 07: o desafio retornou 404 na conferência de 14/10/2026. Nenhum requisito foi inventado a partir do título da aula.
+- Checkpoints posteriores: autenticação, painel administrativo e CRUD adicional não fazem parte desta entrega.
 
-- Repositório público: [github.com/Harlen539/front-end-avancado](https://github.com/Harlen539/front-end-avancado)
-- Site na Vercel: [leque-de-vagas.vercel.app](https://leque-de-vagas.vercel.app/)
+## Equipe
 
-## Equipe e frentes
+Integrantes registrados: Harlen Henrick, Bruno Venâncio, Carlos Eduardo e Alyssa Lima. Os registros consultados não confirmam quem ficou responsável por cada uma das quatro frentes; não atribua uma frente sem confirmação da equipe.
 
-Os nomes abaixo precisam ser completados pela equipe; eles não podem ser deduzidos do código.
+## Rotas
 
-| frente | responsável | entrega principal |
-| --- | --- | --- |
-| 1 · Vaga | **preencher** | criação com Zod, detalhe e redirecionamento |
-| 2 · Empresa | **preencher** | edição do perfil, erros por campo e sucesso |
-| 3 · Pessoa e candidatura | **preencher** | envio ao servidor e botão com useFormStatus |
-| 4 · Busca e números | **preencher** | arquivamento, filtros, contagens e revalidação |
+| Rota | O que apresenta |
+| --- | --- |
+| `/` | Apresentação do projeto |
+| `/vagas` | Listagem, busca e filtros combinados |
+| `/vagas/nova` | Criação de vaga |
+| `/vagas/[id]` | Detalhe, contagem e candidatura |
+| `/empresas` | Catálogo de empresas |
+| `/empresas/[slug]` | Perfil e vagas da empresa |
+| `/empresas/[slug]/editar` | Edição do perfil |
+| `/api/empresas/[slug]` | JSON público da empresa ou 404 |
+| `/sobre`, `/contato`, `/termos`, `/privacidade` | Páginas institucionais |
 
-## O que é um componente?
+As rotas de vaga e empresa usam parâmetros dinâmicos, `generateMetadata` e `notFound`. Uma vaga inexistente mostra a página visual de ausência; como Next.js pode transmitir a resposta antes de decidir o estado, a verificação observou HTTP 200 nessa rota dinâmica e HTTP 404 em uma rota geral inexistente.
 
-Um componente é uma peça da interface com uma responsabilidade clara, que pode ser combinada com outras peças e reutilizada em mais de uma página. O `Cabecalho`, por exemplo, é escrito uma vez no layout raiz: assim, uma alteração na marca ou na navegação chega a todas as rotas sem copiar o mesmo código.
+## Busca e filtros
 
-O `Link` do Next.js faz a navegação interna sem recarregar o documento inteiro. Por isso a troca entre as páginas preserva a interface compartilhada e parece mais rápida que uma navegação interna feita diretamente com `<a href>`.
+O mural combina o texto da busca com área, senioridade e a opção “Aceita iniciante”. O estado é lido e escrito em `searchParams`, mantendo links compartilháveis e o histórico Voltar/Avançar. A digitação da busca atualiza a URL com debounce de 300 ms; os outros filtros atualizam a navegação imediatamente. O botão de limpar remove os parâmetros e o resultado vazio oferece a mesma ação.
 
-## Mapa de rotas
+## Dados e persistência
 
-| arquivo | URL | finalidade |
-| --- | --- | --- |
-| `app/page.tsx` | `/` | apresenta o produto |
-| `app/sobre/page.tsx` | `/sobre` | explica o projeto |
-| `app/contato/page.tsx` | `/contato` | rota extra da aula 1 |
-| `app/vagas/page.tsx` | `/vagas` | lista, busca e filtros |
-| `app/vagas/nova/page.tsx` | `/vagas/nova` | publica uma vaga |
-| `app/vagas/[id]/page.tsx` | `/vagas/:id` | detalhe de qualquer vaga |
-| `app/empresas/page.tsx` | `/empresas` | lista as empresas |
-| `app/empresas/[slug]/page.tsx` | `/empresas/:slug` | perfil e vagas da empresa |
-| `app/empresas/[slug]/editar/page.tsx` | `/empresas/:slug/editar` | edita o perfil sem mudar o slug |
-| `app/(institucional)/termos/page.tsx` | `/termos` | termos do projeto |
-| `app/(institucional)/privacidade/page.tsx` | `/privacidade` | aviso de privacidade |
+`lib/api.ts` é a camada de acesso às fontes. Os JSONs em `dados/` são o catálogo inicial. As vagas do JSON são sincronizadas para o banco; a edição local de uma empresa prevalece sobre seu perfil publicado. O cache de 60 segundos se aplica ao catálogo remoto, enquanto consultas mutáveis do Prisma leem o banco.
 
-A pasta `[id]` representa um segmento dinâmico. Em vez de criar um arquivo para cada vaga, uma única página recebe o valor da URL por `params`, busca a vaga correspondente e monta o conteúdo. A mesma ideia é usada com `[slug]` nas empresas. O route group `(institucional)` organiza páginas sob um layout comum, mas os parênteses não entram na URL.
+O desenvolvimento local usa SQLite em `prisma/dev.db`. Para Vercel há um schema e migrations PostgreSQL separados em `prisma/postgres/`; a hospedagem ainda precisa de uma URL `DATABASE_URL` válida e da aplicação da migration. Veja [`../DADOS.md`](../DADOS.md) antes de publicar. O SQLite local não oferece armazenamento durável entre execuções serverless.
 
-O menu considera uma seção inteira como ativa: “Vagas” continua destacado em `/vagas/1` e “Empresas” em `/empresas/aurora-tech`. Isso mantém a localização visível durante a navegação; a home é tratada separadamente para não ficar ativa em todas as rotas.
+Uma candidatura é vinculada a uma vaga. A tela de sucesso informa a quantidade de habilidades registradas e permite “Corrigir alguma coisa” atualizando o mesmo registro. A edição fica associada a um cookie `HttpOnly` limitado à rota da vaga. O formulário tem fallback HTML com Server Action para envio sem JavaScript.
 
-## O estado do projeto
+As Server Actions validam os formulários com Zod, preservam mensagens por campo, revalidam as rotas afetadas e mantêm formulários funcionais sem JavaScript. Arquivar uma vaga não apaga as candidaturas existentes.
 
-### Por que cada componente é de cliente
+## Instalação e execução
 
-- `MenuLink` lê o caminho atual com `usePathname` para marcar o link ativo.
-- `DescricaoDaVaga` tem um clique e guarda se a descrição está aberta.
-- `BotaoCopiarLink` reage ao clique, usa a API `navigator.clipboard` do navegador e guarda se a cópia terminou.
-- `AbasDaEmpresa` guarda o texto `sobre` ou `vagas` para decidir qual painel mostrar.
-- Os formulários usam `useActionState` para receber erros, valores e sucesso das Server Actions. Os campos usam `defaultValue`/`defaultChecked`.
-- `BotaoDeEnviar` usa `useFormStatus` em um filho do formulário para desabilitar o envio durante a espera.
-- `MuralDeVagas` guarda somente a busca e a área escolhida.
-- `app/vagas/[id]/error.tsx` precisa do botão que executa `reset()` no navegador.
-
-`Filtros` não leva a diretiva: ele é importado por `MuralDeVagas`, que já define a fronteira de cliente. Nenhum `page.tsx` ou `layout.tsx` foi transformado em Client Component.
-
-### O que decidimos não guardar em estado
-
-A lista filtrada, as áreas disponíveis e as contagens são calculadas a partir dos dados recebidos. A validação fica nos esquemas Zod no servidor, e a espera vem do estado do formulário.
-
-## Dados externos, cache e espera
-
-As fontes editáveis ficam em `dados/vagas.json` e `dados/empresas.json`. Depois do push, o GitHub as publica a partir de `projeto/dados` em formato Raw. Somente `lib/api.ts` conhece esse endereço e executa `fetch`; páginas e componentes chamam `listarVagas`, `buscarVaga`, `listarEmpresas` e `buscarEmpresa`.
-
-O `fetch` usa `revalidate: 60` e tags por recurso. Assim, uma vaga nova leva no máximo cerca de **60 segundos** para aparecer depois que a versão anterior do cache vence e uma nova requisição atualiza o conteúdo. Esse intervalo mantém o mural recente sem buscar novamente a cada acesso.
-
-A página `/vagas` possui dois limites de `Suspense`: números e listagem podem chegar de forma independente, com esqueletos do mesmo tamanho do conteúdo. O detalhe também possui `loading.tsx`; `notFound()` atende IDs e slugs inexistentes, enquanto `error.tsx` oferece nova tentativa quando a fonte falha.
-
-Se o projeto for publicado em outro repositório, altere o valor padrão de `FONTE` em `lib/api.ts` ou defina a variável de ambiente `FONTE_DADOS` com a URL da pasta Raw, sem barra no final.
-
-## Metadata
-
-Cada rota estática define título e descrição. Nas rotas dinâmicas, `generateMetadata` usa o nome da vaga ou da empresa, e `generateStaticParams` pré-gera as 12 vagas e as 5 empresas no build.
-
-## Build da aula 04 (referência histórica)
-
-Executado com Next.js `16.3.3`, Node.js `v24.12.0` e npm `11.6.2`:
-
-```text
-Route (app)                    Revalidate
-┌ ○ /
-├ ○ /_not-found
-├ ○ /contato
-├ ○ /empresas                          1m
-├   /empresas/[slug]
-│ ├ ● /empresas/aurora-tech            1m
-│ ├ ● /empresas/ponte-digital          1m
-│ ├ ● /empresas/nuvem-clara            1m
-│ └ ● [+2 more paths]
-├ ○ /privacidade
-├ ○ /sobre
-├ ○ /termos
-├ ○ /vagas                             1m
-└   /vagas/[id]
-  ├ ● /vagas/1                         1m
-  ├ ● /vagas/2                         1m
-  ├ ● /vagas/3                         1m
-  └ ● [+9 more paths]
-
-○  (Static) prerendered as static content
-●  (SSG)    prerendered as static HTML (uses generateStaticParams)
-```
-
-## Como executar
+Requisitos: Node.js 20.9 ou superior e npm.
 
 ```bash
-npm install
+cd projeto
+npm ci
+npm run prisma:generate
+npm run prisma:migrate:dev
 npm run dev
 ```
 
-Abra [http://localhost:3000](http://localhost:3000). Para validar como a Vercel:
+Abra `http://localhost:3000`. O banco `prisma/dev.db` é local e ignorado pelo Git. `prisma:migrate:dev` aplica a migration SQLite versionada sem resetar o banco.
+
+Para validar produção localmente:
 
 ```bash
 npm run lint
@@ -123,65 +65,48 @@ npm run build
 npm start
 ```
 
-Antes do primeiro build com a fonte padrão, envie a pasta `dados/` para a branch `main` do repositório público. A URL Raw precisa responder com JSON puro.
+O build executa a geração do Prisma Client antes de `next build`. Em ambiente Vercel, a geração escolhe o schema PostgreSQL e falha se `DATABASE_URL` não estiver configurada.
 
-## Evidências para completar antes da entrega
+## Configuração de ambiente
 
-Estes itens dependem da equipe ou da publicação e não devem ser inventados:
+| Variável | Quando usar | Exemplo |
+| --- | --- | --- |
+| `FONTE_DADOS` | Opcional, para trocar a pasta Raw do catálogo | `https://raw.githubusercontent.com/organizacao/repositorio/main/projeto/dados` |
+| `DATABASE_URL` | Obrigatória na Vercel para PostgreSQL | `postgresql://usuario:senha@host:5432/banco?sslmode=require` |
+| `PRISMA_LOG_QUERIES` | Opcional, para logs SQL locais | `1` |
 
-- [ ] nomes e frentes dos quatro integrantes;
-- [ ] prints de `node -v` e `npm -v`;
-- [ ] print do `loading` da listagem;
-- [ ] print da tela de erro com “Tentar de novo”;
-- [ ] print de `/vagas/999` e do 404 geral;
-- [ ] prints de duas abas de empresas com títulos diferentes;
-- [ ] descrição de cada Pull Request e evidência de revisão;
-- [ ] link final da Vercel;
-- [ ] uma reflexão pessoal sobre a parte mais difícil.
+Não inclua credenciais em arquivos versionados. A aplicação não cria um banco hospedado. Antes do tráfego de produção, aplique `npx prisma migrate deploy --schema prisma/postgres/schema.prisma` com a conexão do provedor configurada.
 
-## Decisões técnicas
+## Build desta revisão
 
-- Componentes de servidor continuam como padrão; `"use client"` aparece apenas nas folhas interativas.
-- Um estado textual controla as abas, evitando dois booleanos que poderiam entrar em conflito.
-- Habilidades usam checkboxes de mesmo `name` e um campo livre opcional, lidos com `FormData.getAll`, permitindo envio sem JavaScript; o esquema remove duplicatas e exige pelo menos uma habilidade.
-- O acesso externo está concentrado em uma camada, para que a fonte possa ser trocada sem alterar as telas.
-- As vagas e empresas inexistentes orientam a pessoa com 404; falhas temporárias de rede oferecem nova tentativa.
+Executado com Node.js 22.20.0, npm 11.6.2, Next.js 16.4.1 e Prisma 6.19.3:
 
-## Aula 05 — Server Actions
+```text
+○ /                         estática
+○ /_not-found               estática
+ƒ /api/empresas/[slug]      sob demanda
+○ /contato                  estática
+ƒ /empresas                 sob demanda
+ƒ /empresas/[slug]          sob demanda
+ƒ /empresas/[slug]/editar   sob demanda
+○ /privacidade              estática
+○ /sobre                    estática
+○ /termos                   estática
+ƒ /vagas                    sob demanda
+ƒ /vagas/[id]               sob demanda
+ƒ /vagas/nova               sob demanda
+```
 
-Referência: [slides](https://cdn.aulas.umlequedetecnologia.com.br/public/introducao-nextjs/aula-05-server-actions/slides.html) e [desafio](https://cdn.aulas.umlequedetecnologia.com.br/public/introducao-nextjs/aula-05-server-actions/desafio.html).
+`○` indica conteúdo estático e `ƒ` indica renderização por requisição. A lista será atualizada se a saída do build final diferir após a instalação limpa.
 
-As quatro escritas ficam em `lib/api.ts`: `guardarVaga`, `guardarEmpresa`, `guardarCandidatura` e `arquivarVaga`. Na entrega original da aula 05, os dados ficavam em memória e sumiam após reiniciar. **Agora a aula 06 grava em SQLite com Prisma**. O JSON remoto continua sendo o catálogo inicial, com `revalidate: 60` e tags; suas vagas são espelhadas no banco para permitir candidaturas relacionadas. Veja [DADOS.md](../DADOS.md) para as decisões e limitações de hospedagem.
+## Validação e evidências
 
-Todas as ações validam o POST com `safeParse` em `lib/esquemas.ts`, antes de consultar ou gravar. O tipo compartilhado `Estado` tem `ok`, `erros`, `valores` e `mensagem`. IDs novos são gerados no servidor; empresas e vagas referenciadas são verificadas antes da escrita. Erros preservam os campos preenchidos. A aula 05 não criou rota de API; a aula 06 acrescentou `GET /api/empresas/[slug]`.
+Os resultados desta revisão, incluindo dependências, migrations, testes de interface, limitações da Vercel e evidências, estão em [`docs/VALIDACAO_REVISAO.md`](docs/VALIDACAO_REVISAO.md). Capturas e gravações reais dos fluxos executados estão em [`docs/evidencias-revisao/`](docs/evidencias-revisao/). As evidências antigas da aula 05 permanecem em [`docs/evidencias-aula05/`](docs/evidencias-aula05/).
 
-- **Criar:** em `/vagas`, clique em “Publicar vaga”. A empresa vem de um select; após publicar, a ação revalida e redireciona para o detalhe, fora do `try/catch`.
-- **Editar:** no perfil da empresa, clique em “Editar perfil”. O slug permanece fixo. Salvar mostra “Perfil atualizado.” na própria tela.
-- **Candidatar:** no detalhe de uma vaga, informe nome, e-mail e habilidades. Checkboxes e o campo livre dispensam código de cliente para enviar. O sucesso é determinado pelo retorno da ação.
-- **Arquivar:** no mural, cada cartão tem um formulário com ID oculto. A revalidação atualiza cartões e números, preservando os `Suspense` e sem alterar `NumerosDoCatalogo`.
+## Pendências externas
 
-### Por que revalidatePath
-
-`revalidateTag("vagas", "max")` invalida o fetch remoto etiquetado; as escritas atuais acontecem no banco. Por isso usamos `revalidatePath` nas rotas afetadas pelas Server Actions. Na versão instalada, a assinatura de um argumento de `revalidateTag` está obsoleta.
-
-Criar/arquivar invalida `/vagas`, o detalhe afetado, `/empresas` e o perfil correspondente, pois todos exibem a vaga ou sua contagem. Editar invalida listagem, perfil e edição da empresa, além das rotas de vagas que mostram o nome. Revalidar apenas o perfil deixaria a listagem de empresas com o nome antigo.
-
-### Roteiro de conferência da aula 05
-
-1. Envie cada formulário vazio: erros em português devem aparecer sob os campos.
-2. Preencha parcialmente e provoque um erro: os valores e habilidades devem permanecer.
-3. Publique uma vaga com e sem “Aceita iniciante”; confira detalhe, mural e contagens.
-4. Edite uma empresa; confira sucesso, nome na listagem, perfil e cartões das vagas.
-5. Envie uma candidatura com JavaScript desabilitado: o envio deve funcionar por POST e a confirmação deve aparecer após a navegação. O texto “Enviando…” depende do JavaScript.
-6. Arquive uma vaga: o cartão e as contagens devem mudar na resposta da ação, sem recarregar manualmente.
-7. Reinicie o servidor: na versão atual, as escritas da aula 06 devem permanecer.
-
-Publicação na Vercel, revisão de PR por colegas, nomes da equipe e envio de links ao grupo continuam dependendo da equipe.
-
-### Verificação executada em 09/09/2026
-
-`npm run lint` e `npm run build` passaram. Em navegador Edge automatizado com Playwright, contra `npm start` local, foram conferidos: erros por campo, preservação de texto/empresa/checkboxes após recusa, criação com redirecionamento, candidatura com espera e sucesso, edição sem redirecionamento e propagação do nome, e arquivamento com atualização dos cartões e das duas contagens. O detalhe de vaga arquivada exibiu a página de ausência. Nenhum erro de JavaScript foi capturado nesses fluxos.
-
-Em contexto de navegador com `javaScriptEnabled: false`, a candidatura vazia foi recusada pelo servidor; o preenchimento e envio seguinte mostraram a confirmação por POST. Não há indicador “Enviando…” sem JavaScript. Para observar a espera no teste com JavaScript, foi simulada latência apenas no navegador de teste, sem atrasos no código da aplicação.
-
-Os [prints de evidência](docs/evidencias-aula05/) incluem criação, validação, edição, candidatura sem JavaScript e contagens após arquivar. A comparação experimental entre as duas estratégias de revalidação e os vídeos pedidos pela aula ainda precisam ser registrados pela equipe; a escolha de `revalidatePath` acima documenta o motivo técnico, não um experimento com `revalidateTag` executado nesta verificação.
+- Configurar PostgreSQL hospedado, definir `DATABASE_URL` na Vercel e aplicar a migration de produção.
+- Investigar e corrigir os erros atualmente observados na publicação (`/empresas/aurora-tech` com HTTP 500 e `/api/empresas/aurora-tech` com HTTP 503) após a configuração do banco.
+- Confirmar com a equipe a divisão das quatro frentes, as revisões de PR e o envio dos links finais.
+- Repetir a auditoria completa dos enunciados quando o curso e o briefing estiverem acessíveis; a URL do desafio 07 segue indisponível.
+- Consultar a equipe sobre procedimento de correção e exclusão dos dados pessoais armazenados nas candidaturas.

@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   --fundo: #f5f5f2;
   --superficie: #ffffff;
@@ -842,6 +844,32 @@ a {
 .sucessoCandidatura .avisoDidatico {
   margin-top: 12px;
   font-size: 0.78rem;
+}
+
+.corrigirCandidatura {
+  max-width: 800px;
+  margin-top: 16px;
+  padding: 20px 24px;
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+}
+
+.corrigirCandidatura summary {
+  width: fit-content;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.corrigirCandidatura > p {
+  margin-top: 12px;
+  color: var(--texto-suave);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.corrigirCandidatura form {
+  margin-top: 24px;
 }
 
 /* Empresas */
