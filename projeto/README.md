@@ -7,7 +7,7 @@ Mural de vagas de tecnologia para pessoas que estão começando ou migrando de c
 ## Site e repositório
 
 - Repositório público: [github.com/Harlen539/front-end-avancado](https://github.com/Harlen539/front-end-avancado)
-- Site na Vercel: **preencher depois da publicação**
+- Site na Vercel: [leque-de-vagas.vercel.app](https://leque-de-vagas.vercel.app/)
 
 ## Equipe e frentes
 
@@ -67,7 +67,7 @@ A lista filtrada, as áreas disponíveis e as contagens são calculadas a partir
 
 ## Dados externos, cache e espera
 
-As fontes editáveis ficam em `dados/vagas.json` e `dados/empresas.json`. Depois do push, o GitHub as publica a partir de `desafio-01/dados` em formato Raw. Somente `lib/api.ts` conhece esse endereço e executa `fetch`; páginas e componentes chamam `listarVagas`, `buscarVaga`, `listarEmpresas` e `buscarEmpresa`.
+As fontes editáveis ficam em `dados/vagas.json` e `dados/empresas.json`. Depois do push, o GitHub as publica a partir de `projeto/dados` em formato Raw. Somente `lib/api.ts` conhece esse endereço e executa `fetch`; páginas e componentes chamam `listarVagas`, `buscarVaga`, `listarEmpresas` e `buscarEmpresa`.
 
 O `fetch` usa `revalidate: 60` e tags por recurso. Assim, uma vaga nova leva no máximo cerca de **60 segundos** para aparecer depois que a versão anterior do cache vence e uma nova requisição atualiza o conteúdo. Esse intervalo mantém o mural recente sem buscar novamente a cada acesso.
 

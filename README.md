@@ -136,7 +136,7 @@ git clone https://github.com/Harlen539/front-end-avancado.git
 ### 2. Entre na pasta
 
 ```bash
-cd front-end-avancado
+cd front-end-avancado/projeto
 ```
 
 ### 3. Instale as dependências
@@ -238,8 +238,8 @@ Este repositório será atualizado conforme o avanço da disciplina.
 ### Progresso
 
 * [x] Aula 01 — Ambiente, projeto e deploy
-* [ ] Aula 02 — Aguardando conteúdo
-* [ ] Próximas aulas
+* [x] Aulas 02 a 05 — Implementadas no diretório `projeto/`
+* [ ] Aula 06 — Persistência com banco de dados
 * [ ] Evolução do Leque de Vagas
 * [ ] Projeto final
 
