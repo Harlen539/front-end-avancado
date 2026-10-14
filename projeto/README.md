@@ -65,7 +65,7 @@ npm run build
 npm start
 ```
 
-O build executa a geração do Prisma Client antes de `next build`. Em ambiente Vercel, a geração escolhe o schema PostgreSQL e falha se `DATABASE_URL` não estiver configurada.
+O build executa a geração do Prisma Client antes de `next build`. Na Vercel, com `DATABASE_URL`, a geração escolhe PostgreSQL. Sem ela, o catálogo público continua disponível em modo de consulta; publicações, edições e candidaturas exigem banco configurado.
 
 ## Configuração de ambiente
 

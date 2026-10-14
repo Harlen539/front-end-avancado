@@ -73,6 +73,8 @@ textarea {
 .opcoesHabilidades { display: flex; flex-wrap: wrap; gap: 16px 24px; margin-bottom: 24px; }
 .formulario > .botao { justify-self: start; }
 .mensagemSucesso { padding: 16px; border-radius: 10px; background: var(--acento); }
+.avisoPersistencia { display: grid; gap: 4px; padding: 12px max(24px, calc((100% - 1120px) / 2)); color: #473a14; background: #fff1c7; font-size: .92rem; }
+.avisoPersistencia strong { font-weight: 700; }
 .formularioArquivar { margin-top: 20px; }
 .formularioArquivar .botao { padding: 10px 16px; }
 button:disabled { opacity: .65; cursor: wait; }

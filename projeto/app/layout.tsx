@@ -17,6 +17,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="pt-BR" data-scroll-behavior="smooth">
       <body>
         <Cabecalho />
+        {!process.env.DATABASE_URL && (
+          <aside className="avisoPersistencia" role="status">
+            <strong>Catálogo em modo de consulta.</strong>
+            <span>
+              Vagas e empresas estão disponíveis. Para publicar, editar ou enviar candidaturas, configure o banco PostgreSQL.
+            </span>
+          </aside>
+        )}
         {children}
         <Rodape />
       </body>

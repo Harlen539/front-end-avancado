@@ -73,48 +73,79 @@ const camposPublicos = {
 
 export async function listarVagas(): Promise<Vaga[]> {
   await connection();
-  await sincronizarCatalogo();
-  const [vagas, empresas] = await Promise.all([
-    prisma.vaga.findMany({
-      where: { arquivada: false },
-      select: camposPublicos,
-      orderBy: [{ criadaEm: "desc" }, { publicadaEm: "desc" }, { id: "asc" }],
-    }),
-    prisma.empresa.findMany({ select: { slug: true, nome: true } }),
-  ]);
-  const nomes = new Map(empresas.map((empresa) => [empresa.slug, empresa.nome]));
-  return vagas.map((vaga) => ({ ...vaga, empresa: nomes.get(vaga.empresaSlug) ?? vaga.empresa }));
+  try {
+    await sincronizarCatalogo();
+    const [vagas, empresas] = await Promise.all([
+      prisma.vaga.findMany({
+        where: { arquivada: false },
+        select: camposPublicos,
+        orderBy: [{ criadaEm: "desc" }, { publicadaEm: "desc" }, { id: "asc" }],
+      }),
+      prisma.empresa.findMany({ select: { slug: true, nome: true } }),
+    ]);
+    const nomes = new Map(empresas.map((empresa) => [empresa.slug, empresa.nome]));
+    return vagas.map((vaga) => ({ ...vaga, empresa: nomes.get(vaga.empresaSlug) ?? vaga.empresa }));
+  } catch {
+    const [vagas, empresas] = await Promise.all([
+      listarVagasPublicadas(),
+      listarEmpresasPublicadas(),
+    ]);
+    const nomes = new Map(empresas.map((empresa) => [empresa.slug, empresa.nome]));
+    return vagas.map((vaga) => ({ ...vaga, empresa: nomes.get(vaga.empresaSlug) ?? vaga.empresa }));
+  }
 }
 
 export async function buscarVaga(id: string): Promise<Vaga | undefined> {
   await connection();
-  await sincronizarCatalogo();
-  const vaga = await prisma.vaga.findUnique({ where: { id, arquivada: false }, select: camposPublicos });
-  if (!vaga) return undefined;
-  const empresa = await prisma.empresa.findUnique({ where: { slug: vaga.empresaSlug }, select: { nome: true } });
-  return { ...vaga, empresa: empresa?.nome ?? vaga.empresa };
+  try {
+    await sincronizarCatalogo();
+    const vaga = await prisma.vaga.findUnique({ where: { id, arquivada: false }, select: camposPublicos });
+    if (!vaga) return undefined;
+    const empresa = await prisma.empresa.findUnique({ where: { slug: vaga.empresaSlug }, select: { nome: true } });
+    return { ...vaga, empresa: empresa?.nome ?? vaga.empresa };
+  } catch {
+    const vagas = await listarVagasPublicadas();
+    const vaga = vagas.find((item) => item.id === id);
+    if (!vaga) return undefined;
+    const empresa = (await listarEmpresasPublicadas()).find((item) => item.slug === vaga.empresaSlug);
+    return { ...vaga, empresa: empresa?.nome ?? vaga.empresa };
+  }
 }
 
 export async function contarCatalogo() {
   await connection();
-  await sincronizarCatalogo();
-  const [total, iniciantes] = await Promise.all([
-    prisma.vaga.count({ where: { arquivada: false } }),
-    prisma.vaga.count({ where: { arquivada: false, aceitaIniciante: true } }),
-  ]);
-  return { total, iniciantes };
+  try {
+    await sincronizarCatalogo();
+    const [total, iniciantes] = await Promise.all([
+      prisma.vaga.count({ where: { arquivada: false } }),
+      prisma.vaga.count({ where: { arquivada: false, aceitaIniciante: true } }),
+    ]);
+    return { total, iniciantes };
+  } catch {
+    const vagas = await listarVagasPublicadas();
+    return { total: vagas.length, iniciantes: vagas.filter((vaga) => vaga.aceitaIniciante).length };
+  }
 }
 
 export async function contarCandidaturas(vagaId: string): Promise<number> {
   await connection();
-  return prisma.candidatura.count({ where: { vagaId } });
+  try {
+    return await prisma.candidatura.count({ where: { vagaId } });
+  } catch {
+    return 0;
+  }
 }
 
 export async function buscarCandidatura(id: string, vagaId: string): Promise<Candidatura | undefined> {
-  const candidatura = await prisma.candidatura.findFirst({
-    where: { id, vagaId },
-    select: { id: true, vagaId: true, nome: true, email: true, habilidades: true },
-  });
+  let candidatura;
+  try {
+    candidatura = await prisma.candidatura.findFirst({
+      where: { id, vagaId },
+      select: { id: true, vagaId: true, nome: true, email: true, habilidades: true },
+    });
+  } catch {
+    return undefined;
+  }
   if (!candidatura) return undefined;
   return { ...candidatura, habilidades: JSON.parse(candidatura.habilidades) as string[] };
 }
@@ -122,7 +153,12 @@ export async function buscarCandidatura(id: string, vagaId: string): Promise<Can
 export async function listarEmpresas(): Promise<Empresa[]> {
   await connection();
   const publicadas = await listarEmpresasPublicadas();
-  const editadas = await prisma.empresa.findMany();
+  let editadas: Empresa[];
+  try {
+    editadas = await prisma.empresa.findMany();
+  } catch {
+    return publicadas;
+  }
   const porSlug = new Map(publicadas.map((empresa) => [empresa.slug, empresa]));
   for (const empresa of editadas) porSlug.set(empresa.slug, empresa);
   return [...porSlug.values()];

@@ -4,9 +4,9 @@
 
 Os tipos de tela estão em `projeto/lib/tipos.ts`. Os arquivos `projeto/dados/vagas.json` e `projeto/dados/empresas.json` são o catálogo publicado e a origem inicial dos registros. `FONTE_DADOS` pode apontar para outra pasta Raw; sem essa variável, `lib/api.ts` usa os JSONs deste repositório. A leitura dos JSONs usa cache de 60 segundos e valida os dados com Zod.
 
-No servidor, as vagas do catálogo são espelhadas no banco para que candidaturas tenham uma relação com uma vaga persistida. Uma revisão SHA-256 evita repetir a sincronização quando o catálogo não mudou. Arquivamento e edições locais são preservados durante a sincronização. Para empresas, o registro editado no banco prevalece sobre o JSON; uma empresa que só existe no JSON continua disponível como dado inicial.
+No servidor, as vagas do catálogo são espelhadas no banco para que candidaturas tenham uma relação com uma vaga persistida. Uma revisão SHA-256 evita repetir a sincronização quando o catálogo não mudou. Arquivamento e edições locais são preservados durante a sincronização. Para empresas, o registro editado no banco prevalece sobre o JSON; uma empresa que só existe no JSON continua disponível como dado inicial. Se o banco estiver indisponível, as leituras usam os JSONs publicados e as operações de gravação retornam erro.
 
-As telas consultam o banco para vagas, empresas, candidaturas e contagens. Campos internos, como `criadaEm` e `arquivada`, não fazem parte do tipo público `Vaga`. IDs de vagas do catálogo são números em texto; novas vagas recebem UUIDs. Uma vaga removida do JSON não é excluída do banco automaticamente.
+Com o banco configurado, as telas leem vagas, empresas, candidaturas e contagens persistidas. Sem banco, vagas e empresas continuam disponíveis em modo de consulta; candidaturas não podem ser enviadas e a contagem aparece como zero. Campos internos, como `criadaEm` e `arquivada`, não fazem parte do tipo público `Vaga`. IDs de vagas do catálogo são números em texto; novas vagas recebem UUIDs. Uma vaga removida do JSON não é excluída do banco automaticamente.
 
 ## Desenvolvimento local: SQLite
 

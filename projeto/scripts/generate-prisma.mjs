@@ -1,11 +1,10 @@
 import { spawnSync } from "node:child_process";
 
 const isVercel = process.env.VERCEL === "1";
-const isPostgres = isVercel || Boolean(process.env.DATABASE_URL);
+const isPostgres = Boolean(process.env.DATABASE_URL);
 
 if (isVercel && !process.env.DATABASE_URL) {
-  console.error("Configure DATABASE_URL para usar a persistência PostgreSQL na Vercel.");
-  process.exit(1);
+  console.warn("DATABASE_URL não configurada: o catálogo será somente para consulta na Vercel.");
 }
 
 const command = process.platform === "win32" ? "prisma.cmd" : "prisma";

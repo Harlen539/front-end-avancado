@@ -4,7 +4,7 @@
 
 - Configurar um provedor PostgreSQL e cadastrar `DATABASE_URL` na Vercel.
 - Aplicar a migration de produção com `npm run prisma:migrate:deploy` antes de usar gravações na hospedagem.
-- Confirmar a publicação após configurar o banco. Na última verificação, `/empresas/aurora-tech` respondeu HTTP 500 e `/api/empresas/aurora-tech` respondeu HTTP 503; os logs necessários não estavam disponíveis.
+- Publicar a correção do modo de consulta. A Vercel está sem variáveis de ambiente; antes da correção, `/empresas/aurora-tech` respondia HTTP 500 e a API HTTP 503. Sem PostgreSQL, as gravações continuam indisponíveis.
 - Migrar os dados do SQLite local se eles precisarem ser mantidos na nova instância PostgreSQL.
 
 ## Confirmações do projeto
