@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AbasDaEmpresa from "@/components/AbasDaEmpresa";
-import { buscarEmpresa, listarEmpresas, listarVagas } from "@/lib/api";
+import { buscarEmpresa, listarEmpresasPublicadas, listarVagas } from "@/lib/api";
 
 export async function generateStaticParams() {
-  const empresas = await listarEmpresas();
+  const empresas = await listarEmpresasPublicadas();
   return empresas.map((empresa) => ({ slug: empresa.slug }));
 }
 

@@ -4,10 +4,10 @@ import { notFound } from "next/navigation";
 import BotaoCopiarLink from "@/components/BotaoCopiarLink";
 import DescricaoDaVaga from "@/components/DescricaoDaVaga";
 import FormularioDeCandidatura from "@/components/FormularioDeCandidatura";
-import { buscarVaga, listarVagas } from "@/lib/api";
+import { buscarVaga, contarCandidaturas, listarVagasPublicadas } from "@/lib/api";
 
 export async function generateStaticParams() {
-  const vagas = await listarVagas();
+  const vagas = await listarVagasPublicadas();
   return vagas.map((vaga) => ({ id: vaga.id }));
 }
 
@@ -32,6 +32,7 @@ export default async function PaginaDaVaga({ params }: PageProps<"/vagas/[id]">)
   const vaga = await buscarVaga(id);
 
   if (!vaga) notFound();
+  const candidaturas = await contarCandidaturas(id);
 
   return (
     <main className="conteudo paginaDetalhe">
@@ -75,6 +76,7 @@ export default async function PaginaDaVaga({ params }: PageProps<"/vagas/[id]">)
           <h2 id="titulo-descricao">Sobre a vaga</h2>
           <DescricaoDaVaga descricao={vaga.descricao} />
         </section>
+        <p>{candidaturas} candidatura{candidaturas === 1 ? "" : "s"} recebida{candidaturas === 1 ? "" : "s"}</p>
       </article>
 
       <FormularioDeCandidatura tituloDaVaga={vaga.titulo} vagaId={vaga.id} />
