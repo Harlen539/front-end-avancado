@@ -13,7 +13,7 @@ Aplicação Next.js para consultar vagas de tecnologia, conhecer empresas e envi
 
 ## Equipe
 
-Integrantes registrados: Harlen Henrick, Bruno Venâncio, Carlos Eduardo e Alyssa Lima. A divisão das quatro frentes não está comprovada nos registros consultados; ela deve ser confirmada pela equipe antes de ser atribuída.
+Integrantes registrados: Harlen Henrick, Bruno Venâncio, Carlos Eduardo e Alyssa Lima.
 
 Este README descreve o repositório e não atribui experiências pessoais, reflexões ou revisões a integrantes.
 

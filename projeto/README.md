@@ -11,7 +11,7 @@ Aplicação Next.js para consultar vagas de tecnologia, conhecer empresas e envi
 
 ## Equipe
 
-Integrantes registrados: Harlen Henrick, Bruno Venâncio, Carlos Eduardo e Alyssa Lima. Os registros consultados não confirmam quem ficou responsável por cada uma das quatro frentes; não atribua uma frente sem confirmação da equipe.
+Integrantes registrados: Harlen Henrick, Bruno Venâncio, Carlos Eduardo e Alyssa Lima.
 
 ## Rotas
 

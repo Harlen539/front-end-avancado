@@ -75,7 +75,11 @@ export async function listarVagas(): Promise<Vaga[]> {
   await connection();
   await sincronizarCatalogo();
   const [vagas, empresas] = await Promise.all([
-    prisma.vaga.findMany({ where: { arquivada: false }, select: camposPublicos, orderBy: { criadaEm: "desc" } }),
+    prisma.vaga.findMany({
+      where: { arquivada: false },
+      select: camposPublicos,
+      orderBy: [{ criadaEm: "desc" }, { publicadaEm: "desc" }, { id: "asc" }],
+    }),
     prisma.empresa.findMany({ select: { slug: true, nome: true } }),
   ]);
   const nomes = new Map(empresas.map((empresa) => [empresa.slug, empresa.nome]));

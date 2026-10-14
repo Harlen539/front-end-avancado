@@ -9,6 +9,13 @@ export const metadata: Metadata = {
 
 export default async function PaginaDeEmpresas() {
   const [empresas, vagas] = await Promise.all([listarEmpresas(), listarVagas()]);
+  const vagasPorEmpresa = new Map<string, number>();
+  for (const vaga of vagas) {
+    vagasPorEmpresa.set(
+      vaga.empresaSlug,
+      (vagasPorEmpresa.get(vaga.empresaSlug) ?? 0) + 1,
+    );
+  }
 
   return (
     <main className="conteudo paginaInterna">
@@ -18,7 +25,7 @@ export default async function PaginaDeEmpresas() {
       </div>
       <div className="gradeEmpresas">
         {empresas.map((empresa) => {
-          const total = vagas.filter((vaga) => vaga.empresaSlug === empresa.slug).length;
+          const total = vagasPorEmpresa.get(empresa.slug) ?? 0;
           return (
             <Link key={empresa.slug} href={`/empresas/${empresa.slug}`}>
               <span>{total} {total === 1 ? "vaga" : "vagas"}</span>

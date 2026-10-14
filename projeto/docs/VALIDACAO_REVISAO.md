@@ -10,4 +10,4 @@ Executada em 14/10/2026, em Windows, Node.js 22.20.0 e npm 11.13.0.
 - Verificações de navegador e persistência local estão registradas nas capturas desta pasta. O banco SQLite de desenvolvimento foi restaurado após os fluxos de teste.
 - `npm audit`: restam 8 vulnerabilidades altas (3 em dependências de produção), ligadas principalmente ao Prisma/deepmerge-ts. `npm audit fix --force` propõe downgrade de versões principais; não foi aplicado.
 
-O build produziu as rotas institucionais estáticas e as rotas dinâmicas de vagas, empresas e API. Veja [`../PENDENCIAS_ALYSSA.md`](../PENDENCIAS_ALYSSA.md) para configuração PostgreSQL/Vercel, estado do serviço publicado e itens que dependem da equipe ou de fontes indisponíveis.
+O build produziu as rotas institucionais estáticas e as rotas dinâmicas de vagas, empresas e API. Veja [`../PENDENCIAS.md`](../PENDENCIAS.md) para configuração PostgreSQL/Vercel, estado do serviço publicado e itens que dependem da equipe ou de fontes indisponíveis.
