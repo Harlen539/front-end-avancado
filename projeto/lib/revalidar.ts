@@ -1,8 +1,8 @@
 import { revalidatePath } from "next/cache";
 
 export function revalidarCatalogo(id?: string, empresaSlug?: string) {
-  // As alterações vivem em memória, fora do fetch etiquetado. revalidateTag
-  // sozinho invalidaria o JSON remoto, não as rotas que combinam JSON e memória.
+  // As escritas vivem no banco. A tag pertence ao fetch do JSON remoto;
+  // revalidatePath atualiza as rotas afetadas pelas Server Actions.
   revalidatePath("/vagas");
   revalidatePath("/empresas");
   if (id) revalidatePath(`/vagas/${id}`);

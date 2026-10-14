@@ -16,7 +16,7 @@ export async function enviarCandidatura(_anterior: Estado, dados: FormData): Pro
     if (!await buscarVaga(resultado.data.vagaId)) {
       return { ok: false, erros: { vagaId: "Esta vaga não está mais disponível." }, valores };
     }
-    guardarCandidatura({ ...resultado.data, id: crypto.randomUUID() });
+    await guardarCandidatura({ ...resultado.data, id: crypto.randomUUID() });
   } catch {
     return { ok: false, erros: {}, valores, mensagem: "Não foi possível enviar a candidatura. Tente novamente." };
   }

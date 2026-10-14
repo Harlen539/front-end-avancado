@@ -15,7 +15,7 @@ export async function arquivar(_anterior: Estado, dados: FormData): Promise<Esta
     const vaga = await buscarVaga(resultado.data.id);
     if (!vaga) return { ok: false, erros: { id: "Esta vaga não está mais disponível." }, valores };
     empresaSlug = vaga.empresaSlug;
-    arquivarVaga(vaga.id);
+    await arquivarVaga(vaga.id);
   } catch {
     return { ok: false, erros: {}, valores, mensagem: "Não foi possível arquivar a vaga. Tente novamente." };
   }

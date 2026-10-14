@@ -14,7 +14,7 @@ export async function salvarEmpresa(_anterior: Estado, dados: FormData): Promise
     if (!await buscarEmpresa(resultado.data.slug)) {
       return { ok: false, erros: { slug: "Empresa não encontrada." }, valores };
     }
-    guardarEmpresa(resultado.data);
+    await guardarEmpresa(resultado.data);
   } catch {
     return { ok: false, erros: {}, valores, mensagem: "Não foi possível salvar o perfil. Tente novamente." };
   }

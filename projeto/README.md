@@ -151,9 +151,9 @@ Estes itens dependem da equipe ou da publicação e não devem ser inventados:
 
 Referência: [slides](https://cdn.aulas.umlequedetecnologia.com.br/public/introducao-nextjs/aula-05-server-actions/slides.html) e [desafio](https://cdn.aulas.umlequedetecnologia.com.br/public/introducao-nextjs/aula-05-server-actions/desafio.html).
 
-As quatro escritas ficam em `lib/api.ts`: `guardarVaga`, `guardarEmpresa`, `guardarCandidatura` e `arquivarVaga`. **Os dados escritos vivem na memória do processo e somem quando o servidor reinicia.** O JSON remoto continua sendo a base de leitura, com `revalidate: 60` e tags. A demonstração deve rodar localmente: instâncias diferentes de hospedagem não compartilham essa memória. Banco e autenticação ficam para as aulas seguintes.
+As quatro escritas ficam em `lib/api.ts`: `guardarVaga`, `guardarEmpresa`, `guardarCandidatura` e `arquivarVaga`. Na entrega original da aula 05, os dados ficavam em memória e sumiam após reiniciar. **Agora a aula 06 grava em SQLite com Prisma**. O JSON remoto continua sendo o catálogo inicial, com `revalidate: 60` e tags; suas vagas são espelhadas no banco para permitir candidaturas relacionadas. Veja [DADOS.md](../DADOS.md) para as decisões e limitações de hospedagem.
 
-Todas as ações validam o POST com `safeParse` em `lib/esquemas.ts`, antes de consultar ou gravar. O tipo compartilhado `Estado` tem `ok`, `erros`, `valores` e `mensagem`. IDs novos são gerados no servidor; empresas e vagas referenciadas são verificadas antes da escrita. Erros preservam os campos preenchidos. Não foi criada rota de API.
+Todas as ações validam o POST com `safeParse` em `lib/esquemas.ts`, antes de consultar ou gravar. O tipo compartilhado `Estado` tem `ok`, `erros`, `valores` e `mensagem`. IDs novos são gerados no servidor; empresas e vagas referenciadas são verificadas antes da escrita. Erros preservam os campos preenchidos. A aula 05 não criou rota de API; a aula 06 acrescentou `GET /api/empresas/[slug]`.
 
 - **Criar:** em `/vagas`, clique em “Publicar vaga”. A empresa vem de um select; após publicar, a ação revalida e redireciona para o detalhe, fora do `try/catch`.
 - **Editar:** no perfil da empresa, clique em “Editar perfil”. O slug permanece fixo. Salvar mostra “Perfil atualizado.” na própria tela.
@@ -162,7 +162,7 @@ Todas as ações validam o POST com `safeParse` em `lib/esquemas.ts`, antes de c
 
 ### Por que revalidatePath
 
-`revalidateTag("vagas", "max")` invalida o fetch remoto etiquetado; as escritas desta aula são uma camada em memória fora desse fetch. Por isso usamos `revalidatePath` nas rotas que mostram a combinação de dados, sem invalidar também a tag por precaução. Na versão instalada, a assinatura de um argumento de `revalidateTag` está obsoleta.
+`revalidateTag("vagas", "max")` invalida o fetch remoto etiquetado; as escritas atuais acontecem no banco. Por isso usamos `revalidatePath` nas rotas afetadas pelas Server Actions. Na versão instalada, a assinatura de um argumento de `revalidateTag` está obsoleta.
 
 Criar/arquivar invalida `/vagas`, o detalhe afetado, `/empresas` e o perfil correspondente, pois todos exibem a vaga ou sua contagem. Editar invalida listagem, perfil e edição da empresa, além das rotas de vagas que mostram o nome. Revalidar apenas o perfil deixaria a listagem de empresas com o nome antigo.
 
@@ -174,7 +174,7 @@ Criar/arquivar invalida `/vagas`, o detalhe afetado, `/empresas` e o perfil corr
 4. Edite uma empresa; confira sucesso, nome na listagem, perfil e cartões das vagas.
 5. Envie uma candidatura com JavaScript desabilitado: o envio deve funcionar por POST e a confirmação deve aparecer após a navegação. O texto “Enviando…” depende do JavaScript.
 6. Arquive uma vaga: o cartão e as contagens devem mudar na resposta da ação, sem recarregar manualmente.
-7. Reinicie o servidor: as escritas de demonstração devem desaparecer.
+7. Reinicie o servidor: na versão atual, as escritas da aula 06 devem permanecer.
 
 Publicação na Vercel, revisão de PR por colegas, nomes da equipe e envio de links ao grupo continuam dependendo da equipe.
 

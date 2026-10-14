@@ -1,12 +1,11 @@
-import { listarVagas } from "@/lib/api";
+import { contarCatalogo } from "@/lib/api";
 
 export default async function NumerosDoCatalogo() {
-  const vagas = await listarVagas();
-  const iniciantes = vagas.filter((vaga) => vaga.aceitaIniciante).length;
+  const { total, iniciantes } = await contarCatalogo();
 
   return (
     <div className="numerosCatalogo">
-      <strong>{vagas.length} vagas</strong>
+      <strong>{total} vagas</strong>
       <span aria-hidden="true">·</span>
       <span>{iniciantes} aceitam quem está começando</span>
     </div>
